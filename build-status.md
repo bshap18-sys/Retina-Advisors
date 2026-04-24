@@ -3,8 +3,8 @@
 Update this file at the end of every session. A new chat session
 reads this first to know exactly where the project stands.
 
-Last updated: April 24, 2025 (foundation session - .claude scaffolded, repo pushed)
-Current phase: Phase 1 - Project Foundation (Python scaffolding next)
+Last updated: April 24, 2025 (Phase 1 complete)
+Current phase: Ready for Phase 2 - Stripe MCP Connection
 
 ---
 
@@ -23,25 +23,39 @@ working on today."
 ## Build Phases - Status
 
 Phase 1 - Project Foundation
-Status: IN PROGRESS
+Status: COMPLETE
 Started: April 24, 2025
+Completed: April 24, 2025
 Tasks:
 - [x] CLAUDE.md updated with /init suggestions applied
 - [x] Git repository initialized
 - [x] GitHub public repo created
-- [ ] Basic Python project structure created
-- [ ] requirements.txt created
-- [ ] Folder structure established
+- [x] Basic Python project structure created
+- [x] requirements.txt created
+- [x] Folder structure established
 - [x] .claude/settings.json created with hooks
 - [x] .claude/agents/ folder created (placeholder files)
 Notes: Claude Code ran /init and suggested six CLAUDE.md improvements.
 All six accepted and applied. Repo initialized on main branch (renamed
 from default master), pushed to https://github.com/bshap18-sys/Retina-Advisors.
-Two commits land the foundation: initial planning docs plus .gitignore
-(1f84c52), then .claude scaffolding (5ff5372). Hooks are working day
-one for sensitive-write blocking; Python formatter hook no-ops until
-black and flake8 install in the next task. Agents are placeholders
-with TODO notes, to be fleshed out in their respective phases.
+
+Python scaffold:
+- src/retina/ package, src/ layout
+- tests/ with a smoke test that verifies package import
+- requirements.txt (anthropic, mcp)
+- requirements-dev.txt (black, flake8, pytest, pytest-asyncio)
+- pyproject.toml with pytest pythonpath=src and asyncio_mode=auto
+- .flake8 config aligned with black (max-line-length 100)
+- Python 3.14.0 venv at .venv (gitignored), all deps install cleanly
+
+Hooks:
+- PreToolUse block-sensitive-writes.sh: refuses writes to .env files
+  and production configs. Verified end-to-end.
+- PostToolUse format-python.sh: runs black and flake8 on .py files via
+  the project venv, no-ops when tools are unavailable. JSON input is
+  parsed with grep/sed for zero runtime dependencies.
+
+Agents are placeholders with TODO notes, fleshed out in later phases.
 
 Phase 2 - Stripe MCP Connection
 Status: NOT STARTED

@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 # PostToolUse hook. After a Python file is written or edited, format with
-# black and lint with flake8. If the tools are not installed yet (pre-code
-# phase), no-op silently. Once requirements.txt lands in Phase 1, this
-# hook becomes active automatically.
+# black and lint with flake8. Prefers the project venv (.venv) over system
+# python so tools installed via requirements-dev.txt are found without the
+# user having to activate the venv. If neither has the tools, no-op silently.
 #
 # flake8 findings are printed to stdout - Claude Code surfaces stdout from
 # PostToolUse hooks back to the model, so lint errors become visible in
@@ -12,33 +12,13 @@ set -u
 
 input=$(cat)
 
-resolve_python() {
-  # Prefer python and py on Windows. python3 on Windows often resolves to the
-  # Microsoft Store stub at WindowsApps\python3.exe, which is a placeholder
-  # that writes "Python was not found" to stderr and exits non-zero. We
-  # validate each candidate by running a trivial import before accepting it.
-  for candidate in python py python3; do
-    if command -v "$candidate" >/dev/null 2>&1 && "$candidate" -c "import sys" >/dev/null 2>&1; then
-      echo "$candidate"
-      return 0
-    fi
-  done
-}
+# Extract the first "file_path":"..." value. Assumes no embedded escaped
+# quotes in the path - true for every OS path Claude Code produces.
+path=$(printf '%s' "$input" \
+  | grep -oE '"file_path"[[:space:]]*:[[:space:]]*"[^"]*"' \
+  | head -1 \
+  | sed -E 's/^"file_path"[[:space:]]*:[[:space:]]*"//; s/"$//')
 
-extract_path() {
-  local py
-  py=$(resolve_python)
-  if [ -z "$py" ]; then
-    return 0
-  fi
-  printf '%s' "$input" | "$py" -c "import json, sys
-try:
-    print(json.load(sys.stdin).get('tool_input', {}).get('file_path', ''))
-except Exception:
-    pass"
-}
-
-path=$(extract_path)
 if [ -z "$path" ]; then
   exit 0
 fi
@@ -54,14 +34,32 @@ if [ ! -f "$path" ]; then
   exit 0
 fi
 
-# black is a formatter. Silent on success, non-zero on parse failure.
-if command -v black >/dev/null 2>&1; then
-  black --quiet "$path" 2>&1 || true
+# Find a python interpreter that has the requested module installed.
+# Prefer the project venv so requirements-dev.txt tools are found.
+find_python_with() {
+  local module="$1"
+  for py in ".venv/Scripts/python.exe" ".venv/bin/python"; do
+    if [ -x "$py" ] && "$py" -c "import $module" >/dev/null 2>&1; then
+      echo "$py"
+      return 0
+    fi
+  done
+  for py in python py python3; do
+    if command -v "$py" >/dev/null 2>&1 && "$py" -c "import $module" >/dev/null 2>&1; then
+      echo "$py"
+      return 0
+    fi
+  done
+}
+
+BLACK_PY=$(find_python_with black)
+if [ -n "$BLACK_PY" ]; then
+  "$BLACK_PY" -m black --quiet "$path" 2>&1 || true
 fi
 
-# flake8 findings go to stdout so Claude sees them next turn.
-if command -v flake8 >/dev/null 2>&1; then
-  output=$(flake8 "$path" 2>&1 || true)
+FLAKE8_PY=$(find_python_with flake8)
+if [ -n "$FLAKE8_PY" ]; then
+  output=$("$FLAKE8_PY" -m flake8 "$path" 2>&1 || true)
   if [ -n "$output" ]; then
     echo "flake8 findings for $path:"
     echo "$output"
