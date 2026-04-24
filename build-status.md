@@ -58,14 +58,18 @@ Hooks:
 Agents are placeholders with TODO notes, fleshed out in later phases.
 
 Phase 2 - Stripe MCP Connection
-Status: NOT STARTED
+Status: NEXT UP
 Tasks:
 - [ ] Stripe MCP server added to Claude Code
 - [ ] Test pull of dispute object confirmed
 - [ ] Test pull of charge object expansion confirmed
 - [ ] Test pull of customer history confirmed
 - [ ] Data layer validated before building on top of it
-Notes: none yet
+Notes: Requires a Stripe test-mode API key. First move is adding
+Stripe's official MCP server to Claude Code config. Blocked pre-code
+gate: Stripe MCP field research - this phase closes it by confirming
+every planned input form field maps to a real Stripe dispute/charge/
+customer field.
 
 Phase 3 - Custom Delivery MCP Server
 Status: NOT STARTED
