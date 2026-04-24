@@ -10,11 +10,16 @@ set -u
 input=$(cat)
 
 resolve_python() {
-  if command -v python3 >/dev/null 2>&1; then
-    echo python3
-  elif command -v python >/dev/null 2>&1; then
-    echo python
-  fi
+  # Prefer python and py on Windows. python3 on Windows often resolves to the
+  # Microsoft Store stub at WindowsApps\python3.exe, which is a placeholder
+  # that writes "Python was not found" to stderr and exits non-zero. We
+  # validate each candidate by running a trivial import before accepting it.
+  for candidate in python py python3; do
+    if command -v "$candidate" >/dev/null 2>&1 && "$candidate" -c "import sys" >/dev/null 2>&1; then
+      echo "$candidate"
+      return 0
+    fi
+  done
 }
 
 extract_path() {

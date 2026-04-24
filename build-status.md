@@ -3,8 +3,8 @@
 Update this file at the end of every session. A new chat session
 reads this first to know exactly where the project stands.
 
-Last updated: April 24, 2025
-Current phase: Phase 1 - Project Foundation
+Last updated: April 24, 2025 (foundation session - .claude scaffolded, repo pushed)
+Current phase: Phase 1 - Project Foundation (Python scaffolding next)
 
 ---
 
@@ -26,16 +26,22 @@ Phase 1 - Project Foundation
 Status: IN PROGRESS
 Started: April 24, 2025
 Tasks:
-- [ ] CLAUDE.md updated with /init suggestions applied
-- [ ] Git repository initialized
-- [ ] GitHub public repo created
+- [x] CLAUDE.md updated with /init suggestions applied
+- [x] Git repository initialized
+- [x] GitHub public repo created
 - [ ] Basic Python project structure created
 - [ ] requirements.txt created
 - [ ] Folder structure established
-- [ ] .claude/settings.json created with hooks
-- [ ] .claude/agents/ folder created (placeholder files)
+- [x] .claude/settings.json created with hooks
+- [x] .claude/agents/ folder created (placeholder files)
 Notes: Claude Code ran /init and suggested six CLAUDE.md improvements.
-All six accepted and being applied now.
+All six accepted and applied. Repo initialized on main branch (renamed
+from default master), pushed to https://github.com/bshap18-sys/Retina-Advisors.
+Two commits land the foundation: initial planning docs plus .gitignore
+(1f84c52), then .claude scaffolding (5ff5372). Hooks are working day
+one for sensitive-write blocking; Python formatter hook no-ops until
+black and flake8 install in the next task. Agents are placeholders
+with TODO notes, to be fleshed out in their respective phases.
 
 Phase 2 - Stripe MCP Connection
 Status: NOT STARTED
@@ -131,16 +137,25 @@ April 24, 2025:
 - VS Code plus terminal is the working environment for Claude Code
 - Build sequence: Foundation, Stripe MCP, Delivery MCP, Prompts,
   Evaluator, Frontend, Launch
+- Git default branch is main, not master
+- Code reviewer agent rule applies to application code only.
+  Planning docs and config files can commit without subagent review.
+- Hook scripts live in .claude/hooks/ as bash files, referenced from
+  .claude/settings.json. JSON tool-input parsing is done in inline
+  python for portability. .gitattributes forces LF on .sh so Windows
+  CRLF conversion does not break the hooks.
+- .claude/settings.local.json (user-specific permissions) is gitignored,
+  .claude/settings.json (project-wide config) is committed.
 
 ## Known Issues and Blockers
 
 - Auto-update failed on Claude Code install in VS Code terminal.
   Run: npm i -g @anthropic-ai/claude-code to fix when convenient.
   Not a blocker for current phase.
-- CLAUDE.md file paths pointed to Fraud Consulting folder instead
-  of local repo. Being fixed in current session via /init suggestions.
-- .claude/agents/ and .claude/settings.json do not exist yet.
-  Planned for Phase 1 completion.
+- GitHub CLI (gh) is not installed on this machine. Repo creation
+  was done manually via github.com. Install via
+  "winget install --id GitHub.cli" if automated repo operations
+  are wanted later (not required).
 
 ---
 
