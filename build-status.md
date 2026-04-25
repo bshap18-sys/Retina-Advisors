@@ -3,8 +3,8 @@
 Update this file at the end of every session. A new chat session
 reads this first to know exactly where the project stands.
 
-Last updated: April 24, 2025 (Phase 1 complete)
-Current phase: Ready for Phase 2 - Stripe MCP Connection
+Last updated: April 25, 2025 (Phase 2 complete)
+Current phase: Ready for Phase 3 - Custom Delivery MCP Server
 
 ---
 
@@ -58,21 +58,31 @@ Hooks:
 Agents are placeholders with TODO notes, fleshed out in later phases.
 
 Phase 2 - Stripe MCP Connection
-Status: NEXT UP
+Status: COMPLETE
+Started: April 25, 2025
+Completed: April 25, 2025
 Tasks:
-- [ ] Stripe MCP server added to Claude Code
-- [ ] Test pull of dispute object confirmed
-- [ ] Test pull of charge object expansion confirmed
-- [ ] Test pull of customer history confirmed
-- [ ] Data layer validated before building on top of it
-Notes: Requires a Stripe test-mode API key. First move is adding
-Stripe's official MCP server to Claude Code config. Blocked pre-code
-gate: Stripe MCP field research - this phase closes it by confirming
-every planned input form field maps to a real Stripe dispute/charge/
-customer field.
+- [x] Stripe MCP server added to Claude Code
+- [x] Test pull of dispute object confirmed
+- [x] Test pull of charge object expansion confirmed
+- [x] Test pull of customer history confirmed (schema validated against API reference; live multi-call query deferred to Phase 4 since the first test charge had no linked customer object)
+- [x] Data layer validated before building on top of it
+Notes: Stripe official MCP server is connected via .mcp.json with
+STRIPE_API_KEY loaded from .env. End-to-end probe confirmed
+(retrieve_balance, list_disputes, fetch_stripe_resources). A test
+dispute was created against test card 4000 0000 0000 0259 and
+pulled back through the MCP. Field-level validation of the design's
+input form against the canonical Stripe API reference produced
+dispute-analyzer-stripe-field-map.md, which closes the pre-code
+gate item "Stripe MCP field research." Critical finding: customer
+name, email, billing address, and purchase IP do not live on the
+dispute object as ground truth - they are merchant-supplied
+evidence slots there - so the design was corrected to pull them
+from the charge object's billing_details. All four pre-code gates
+are now satisfied; we are clear to write Python.
 
 Phase 3 - Custom Delivery MCP Server
-Status: NOT STARTED
+Status: NEXT UP
 Tasks:
 - [ ] Python MCP server file created
 - [ ] Delivery status lookup tool defined
@@ -139,6 +149,27 @@ architecture without running the code.
 ---
 
 ## Key Decisions Made This Session
+
+April 25, 2025:
+- Pre-code gate fully closed. Field-level validation of the design's
+  input form against the canonical Stripe API reference (Dispute and
+  Charge objects) produced dispute-analyzer-stripe-field-map.md.
+- Critical correction applied to design-decisions.md: customer name,
+  email, billing address, and purchase IP moved from Layer 1 (dispute
+  object) to Layer 2 (charge object). They were sitting on
+  dispute.evidence.* in the design, which is a merchant-supplied
+  evidence slot, not Stripe ground truth.
+- First test dispute created via test card 4000 0000 0000 0259,
+  pulled back through Stripe MCP, full field schema verified against
+  docs.stripe.com/api/disputes/object and /api/charges/object.
+- Confirmed: fraudulent is the canonical first-test pipeline.
+  Highest DTC volume, exercises all four parallel evidence streams.
+  Other reason codes are easier and will follow.
+- Stripe MCP behavior observation: list_disputes and
+  fetch_stripe_resources return slim summaries by design (context
+  economy). The MCP is the right tool for runtime use by the
+  analyzer, not for design-time schema enumeration. The published
+  API reference is the canonical source for field schemas.
 
 April 24, 2025:
 - Six-prompt architecture finalized: synthesis, delivery analysis,
