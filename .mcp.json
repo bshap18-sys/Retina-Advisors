@@ -3,6 +3,10 @@
     "stripe": {
       "command": "npx",
       "args": ["-y", "@stripe/mcp", "--tools=all", "--api-key=${STRIPE_API_KEY}"]
+    },
+    "delivery": {
+      "command": ".venv/Scripts/python.exe",
+      "args": ["src/retina/delivery_mcp.py"]
     }
   }
 }
