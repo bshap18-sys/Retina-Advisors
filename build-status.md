@@ -3,8 +3,8 @@
 Update this file at the end of every session. A new chat session
 reads this first to know exactly where the project stands.
 
-Last updated: April 25, 2025 (Phase 2 complete)
-Current phase: Ready for Phase 3 - Custom Delivery MCP Server
+Last updated: April 27, 2025 (Phase 3 complete)
+Current phase: Phase 4 - Prompt System Implementation
 
 ---
 
@@ -82,30 +82,39 @@ from the charge object's billing_details. All four pre-code gates
 are now satisfied; we are clear to write Python.
 
 Phase 3 - Custom Delivery MCP Server
-Status: NEXT UP
+Status: COMPLETE
+Completed: April 27, 2025
+Commit: c7c7b2f
 Tasks:
-- [ ] Python MCP server file created
-- [ ] Delivery status lookup tool defined
-- [ ] Server tested locally
-- [ ] Server connected to Claude Code
-- [ ] Test lookup confirmed working
-Notes: This is the piece that demonstrates Bryan can build MCP
-servers, not just connect to existing ones. Portfolio critical.
+- [x] Python MCP server file created
+- [x] Delivery status lookup tool defined
+- [x] Server tested locally
+- [x] Server connected to Claude Code
+- [x] Test lookup confirmed working
+Notes: Custom delivery MCP server built in Python. 9 tests passing,
+verified live end-to-end. Demonstrates Bryan can build MCP servers,
+not just connect to existing ones. Portfolio critical - confirmed.
 
 Phase 4 - Prompt System Implementation
-Status: NOT STARTED
+Status: IN PROGRESS
+Started: April 27, 2025
 Tasks:
-- [ ] Python async architecture scaffolded
-- [ ] All six prompts loaded from prompt system document
-- [ ] Temperature 0.1 set on all six prompts
-- [ ] Prompt caching headers added to all six
-- [ ] asyncio.gather() wiring all four parallel calls
-- [ ] Synthesis prompt receiving four JSON inputs correctly
-- [ ] Evaluator prompt connected to synthesis output
-- [ ] Scenario 1 from eval dataset run successfully
-Notes: All six prompts are fully written and in
-retina-advisors-prompt-system.md. Implementation is dropping
-them into Python with the correct architecture around them.
+- [x] Python async architecture scaffolded
+- [x] All six prompts loaded from prompt system document (plus routing = 7 total)
+- [x] Temperature 0.1 set on all six prompts
+- [x] Prompt caching headers added to all six
+- [x] asyncio.gather() wiring all four parallel calls
+- [x] Synthesis prompt receiving four JSON inputs correctly
+- [x] Evaluator prompt connected to synthesis output
+- [ ] Scenario 1 from eval dataset run successfully (requires live API key in shell)
+Notes: Three new files written: src/retina/prompts.py (7 prompt constants),
+src/retina/analyzer.py (7-call pipeline), tests/test_analyzer.py (5 unit
+tests + 1 integration test). All 15 non-integration tests pass, zero
+regressions. Code reviewer approved with zero blocking issues.
+MODEL corrected to claude-sonnet-4-6 (prompt system doc had
+claude-sonnet-4-20250514, a date that was in the future when the doc was
+written and is not a valid current model ID).
+Routing prompt written fresh - it did not exist in retina-advisors-prompt-system.md.
 
 Phase 5 - Evaluator Loop
 Status: NOT STARTED
