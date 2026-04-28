@@ -11,4 +11,5 @@ templates = Jinja2Templates(directory=str(Path(__file__).parent / "templates"))
 
 @app.get("/", response_class=HTMLResponse)
 async def form_page(request: Request):
-    return templates.TemplateResponse("form.html", {"request": request})
+    # Starlette 1.0: request is first arg, not embedded in context dict
+    return templates.TemplateResponse(request, "form.html")

@@ -210,6 +210,11 @@ Notes: Zero blocking issues from code reviewer. 10 existing tests
 pass, zero regressions. Tailwind CDN is unpinned (intentional for
 scaffolding) - pin before production. HTMX pinned to 1.9.12.
 stripe package installed here though first used in Phase 6B.
+Starlette 1.0 breaking change discovered and fixed: TemplateResponse
+signature changed from (name, context_dict) to (request, name,
+context_dict). request is now the first positional arg, never
+embedded in the context dict. Every TemplateResponse call in Phase
+6C and 6D must use the new signature.
 
 ---
 
@@ -668,6 +673,11 @@ Non-blocking notes carried forward:
 - No xml fence branch in _call_claude (low priority)
 - dispute_input["_routing"] mutation is documented design choice
 - INTRANSIT naming slightly inconsistent with hyphenated convention
+- Starlette 1.0 TemplateResponse API change: signature is now
+  (request, name, context_dict) - request is the first positional
+  arg, never in the context dict. All TemplateResponse calls in
+  Phase 6C and 6D must use this signature or the template name
+  will be received as a dict and blow up in Jinja2's path splitter.
 
 ---
 
