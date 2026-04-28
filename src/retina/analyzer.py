@@ -46,7 +46,14 @@ async def _call_claude(system_prompt: str, user_content: str) -> str:
         system=system,
         messages=[{"role": "user", "content": user_content}],
     )
-    return response.content[0].text
+    text = response.content[0].text.strip()
+    if text.startswith("```json"):
+        text = text[7:]
+    elif text.startswith("```"):
+        text = text[3:]
+    if text.endswith("```"):
+        text = text[:-3]
+    return text.strip()
 
 
 async def route_dispute(dispute_input: dict) -> dict:
