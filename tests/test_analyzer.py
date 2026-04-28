@@ -301,3 +301,47 @@ async def test_scenario_1_full_pipeline():
         f"Scenario 1 should not exhaust the evaluator loop. loop_count={result['loop_count']}, "
         f"evaluation={result['evaluation']}"
     )
+
+
+@integration
+async def test_scenario_26_evaluator_loop():
+    """Scenario 26: evaluator catches a deliberately weak synthesis output.
+
+    Feeds the flawed four-sentence string from the eval dataset directly to
+    evaluate_report() and confirms the evaluator returns revision_required
+    with all five expected failing criteria identified.
+    """
+    dispute_input = _build_scenario_1_input()
+    dispute_input["_routing"] = {
+        "pipeline": "fraudulent_friendly_fraud",
+        "confidence": "high",
+        "rationale": "Scenario 26 routing stub.",
+    }
+
+    flawed_report = (
+        "This dispute may potentially be friendly fraud. "
+        "The customer has prior orders on this card. "
+        "We recommend challenging this dispute. "
+        "The merchant's dispute rate is healthy."
+    )
+
+    result = await evaluate_report(flawed_report, dispute_input)
+
+    assert (
+        result.get("overall_result") == "revision_required"
+    ), f"Evaluator must return revision_required for a flawed report. Got: {result}"
+
+    expected_failures = {
+        "confidence_justification",
+        "two_question_framework",
+        "citation_completeness",
+        "verdict_format",
+        "no_false_confidence",
+    }
+    failed = set(result.get("failed_criteria", []))
+    missing = expected_failures - failed
+    assert not missing, f"Evaluator missed required failing criteria: {missing}. Got: {failed}"
+
+    assert result.get(
+        "revision_instructions"
+    ), "revision_instructions must be non-empty when revision_required"
