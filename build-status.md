@@ -3,9 +3,9 @@
 Update this file at the end of every session. A new chat session
 reads this first to know exactly where the project stands.
 
-Last updated: April 28, 2026 (end of session - Phase 6A complete)
+Last updated: April 29, 2026 (end of session - Phase 6C complete)
 Current phase: Phase 6 - Input Form and Frontend
-Next session: Start Phase 6B - assembler.py
+Next session: Start Phase 6D - report renderer
 
 ---
 
@@ -15,9 +15,10 @@ Paste this at the start of any new Claude.ai or Claude Code session:
 
 "I am building the Retina Advisors Dispute Analyzer. Read these
 files in my Retina-Advisors project folder before we continue:
-CLAUDE.md, build-status.md, and whichever phase documents are
-relevant. Then tell me what you understand and ask what we are
-working on today."
+CLAUDE.md, build-status.md, dispute-analyzer-design-decisions.md,
+dispute-analyzer-stripe-field-map.md, and retina-advisors-prompt-system.md.
+Then tell me what you understand. Then we will plan the next phase
+before writing any code."
 
 ---
 
@@ -221,105 +222,49 @@ embedded in the context dict. Every TemplateResponse call in Phase
 ---
 
 ### Phase 6B - Assembler
-Goal: assembler.py pulls real Stripe data for a dispute ID,
-combines it with form inputs and uploaded document findings,
-returns a complete dict that analyze_dispute() accepts without
-modification. Tested directly against sandbox dispute ID before
-any form exists.
-
-The assembler is the data assembly layer. It does NOT call
-analyze_dispute(). It returns a dict. The web route calls
-analyze_dispute() with that dict.
+Status: COMPLETE
+Commit: e6654ca
+Completed: April 29, 2026
 
 Tasks:
+- [x] Create src/retina/assembler.py
+- [x] assemble_dispute_input(dispute_id, form_data, documents)
+      returning complete dict for analyze_dispute()
+- [x] Stripe Call 1 - dispute object with charge, customer,
+      and refunds expanded in single round-trip
+- [x] Stripe Call 2 - charge expansion: all auth, card, Radar,
+      and refund fields extracted via _safe_attr helper
+- [x] Stripe Call 3 - customer history: customer ID primary path,
+      fingerprint fallback with 120-day lookback and client-side
+      filter when no customer ID available
+- [x] Delivery MCP lookup via get_delivery_status() direct import
+- [x] Document pre-processing: asyncio.gather per file, PDF and
+      image blocks, temperature 0.1, cache_control on system prompt
+- [x] All six data layers assembled into complete dict
+- [x] Missing fields produce None not KeyError
+- [x] ValueError on bad dispute ID, warnings on non-fatal failures
+- [x] Create tests/test_assembler.py - 8 _combine_avs unit tests,
+      6 _build_customer_history unit tests, 5 mocked async tests,
+      2 integration tests - 19/19 non-integration passing
+- [x] Both integration tests passed against live Stripe sandbox
+- [x] Code reviewer subagent: zero blocking issues after one fix
+      (card_network capitalization in failed-expansion fallback)
+- [x] pyproject.toml: integration marker registered
 
-Stripe SDK setup:
-- [ ] Confirm stripe Python package installed (added in 6A)
-- [ ] Confirm STRIPE_API_KEY loading from .env in web.py
-      (key already in .env from Phase 2 - confirm present)
-- [ ] Verify stripe.Dispute.retrieve() works against sandbox
-      dispute ID before building anything else
-
-assembler.py - core structure:
-- [ ] Create src/retina/assembler.py
-- [ ] Define assemble_dispute_input(dispute_id, form_data,
-      documents) function - takes dispute ID string, form_data
-      dict from form submission, documents list of uploaded
-      file bytes
-- [ ] Stripe Call 1 - dispute object:
-      stripe.Dispute.retrieve(dispute_id,
-      expand=["charge", "charge.customer"])
-      Pulls: reason code, category, amount, currency,
-      evidence_due_by, status
-- [ ] Stripe Call 2 - charge expansion:
-      From expanded charge object extract:
-      ECI indicator, wallet type, AVS result, CVC result,
-      3DS outcome, card brand, funding type, network transaction
-      ID, Radar risk score, Radar risk level, Radar rule fired,
-      metadata (order ID, product info), refund history with
-      timestamps.
-      All field names must match dispute-analyzer-stripe-field-map.md
-- [ ] Stripe Call 3 - customer history:
-      Using card fingerprint from charge object, query
-      stripe.Charge.list() filtered by card fingerprint to build
-      prior transaction count, prior dispute count, order velocity
-- [ ] Delivery MCP lookup:
-      Call get_delivery_status() from delivery_mcp.py using
-      tracking number and carrier from form_data if provided.
-      Import and call directly - delivery MCP is local Python,
-      no HTTP call needed.
-- [ ] Document pre-processing:
-      If documents list is not empty, make a separate Claude API
-      call for each uploaded file. Pass base64-encoded file as
-      image or document block. System prompt instructs Claude to
-      extract key findings relevant to a payment dispute and
-      return JSON with document_type and key_findings fields.
-      Temperature 0.1. This call is NOT part of the main pipeline -
-      it runs in the assembler before analyze_dispute() is called.
-- [ ] Assemble and return complete dispute_input dict matching the
-      exact structure analyze_dispute() expects. Every field name
-      must match what the prompts reference. See
-      dispute-analyzer-design-decisions.md data architecture
-      section for the six layers.
-- [ ] Handle missing fields gracefully - use None for unavailable
-      data, never omit keys the prompts reference
-
-assembler.py - error handling:
-- [ ] Wrap Stripe calls in try/except - if dispute ID not found,
-      raise clear ValueError with user-facing message
-- [ ] If charge expansion fails, log warning and continue with
-      available data - do not block analysis
-- [ ] If delivery MCP lookup fails, set delivery fields to None
-      and log warning - do not block analysis
-- [ ] If document pre-processing Claude call fails, log warning
-      and continue with empty uploaded_documents list - do not
-      block analysis
-
-assembler.py - tests:
-- [ ] Create tests/test_assembler.py
-- [ ] Unit test: assemble_dispute_input with sandbox dispute ID
-      returns dict with all required top-level keys present
-- [ ] Unit test: Stripe dispute fields correctly mapped - spot
-      check at minimum reason_code, amount, category,
-      evidence_due_by
-- [ ] Unit test: charge expansion fields correctly mapped - spot
-      check at minimum eci_indicator, radar_score, avs_result,
-      refund history
-- [ ] Unit test: missing form fields produce None values not
-      KeyError
-- [ ] Unit test: invalid dispute ID raises ValueError with
-      clear message
-- [ ] Integration test (marked, requires STRIPE_API_KEY): full
-      assemble call against sandbox dispute ID returns populated
-      dict
-- [ ] All tests passing before moving to 6C
-- [ ] Run code reviewer subagent before commit
-- [ ] Commit: "Phase 6B - assembler.py, Stripe SDK integration,
-      document pre-processing, assembler tests"
+Notes: _safe_attr helper traverses Stripe SDK v8 typed objects
+safely at any depth. AVS combined from two Stripe checks into
+single letter code. asyncio.to_thread used for all sync Stripe
+calls to avoid blocking the event loop. Fingerprint fallback
+confirmed working in integration tests. Two non-blocking items
+deferred to 6E - see Known Issues.
 
 ---
 
 ### Phase 6C - Form Build
+Status: COMPLETE
+Commit: (this session)
+Completed: April 29, 2026
+
 Goal: Full merchant input form rendered in browser, Tailwind
 styled, HTMX wired for async submit with loading state. On
 submit, form calls assembler then analyze_dispute and returns
@@ -600,6 +545,12 @@ Key commands:
   Start dev server: uvicorn src.retina.web:app --reload
   Dev server terminal: open plain cmd.exe, activate venv manually,
     run uvicorn there - keep separate from Claude Code terminal
+    IMPORTANT: both ANTHROPIC_API_KEY and STRIPE_API_KEY must be set
+    in this terminal before starting uvicorn. The app calls both APIs
+    on every form submission. Without them the pipeline returns 500.
+    set ANTHROPIC_API_KEY=sk-ant-...
+    set STRIPE_API_KEY=sk_test_...
+    .venv\Scripts\uvicorn.exe retina.web:app --reload
   Integration tests: set ANTHROPIC_API_KEY=... in separate terminal
     .venv\Scripts\python.exe -m pytest tests/test_analyzer.py -k
     "scenario_1" -v -s
@@ -687,6 +638,12 @@ Non-blocking notes carried forward:
   Stripe v8 returns outcome.rule as a plain string ID when the rule object
   is not expanded - the .id traversal returns None. Fix: add
   "charge.outcome.rule" to the expand list in assemble_dispute_input().
+  Flagged in Phase 6B. Fix in Phase 6E.
+- stripe.error.InvalidRequestError and stripe.error.StripeError in
+  assembler.py use the legacy dotted-attribute pattern. Works today via
+  a compatibility shim on the stripe module but could break in a future
+  SDK update. Fix: use stripe.InvalidRequestError and stripe.StripeError
+  directly. Same fix needed in tests/test_assembler.py line 334.
   Flagged in Phase 6B. Fix in Phase 6E.
 - No xml fence branch in _call_claude (low priority)
 - dispute_input["_routing"] mutation is documented design choice

@@ -2,6 +2,6 @@ anthropic>=0.40.0
 mcp>=1.0.0
 fastapi>=0.110.0
 uvicorn[standard]>=0.27.0
-jinja2>=3.1.0
+jinja2>=3.1.4
 stripe>=8.0.0
 python-multipart>=0.0.9
