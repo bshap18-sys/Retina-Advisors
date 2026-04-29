@@ -1,3 +1,5 @@
+import re
+import xml.etree.ElementTree as ET
 from pathlib import Path
 from typing import Annotated, Optional
 
@@ -11,6 +13,150 @@ from retina.analyzer import analyze_dispute
 app = FastAPI(title="Retina Advisors - Dispute Analyzer")
 
 templates = Jinja2Templates(directory=str(Path(__file__).parent / "templates"))
+
+
+def _parse_header_fields(header_text: Optional[str]) -> dict:
+    fields = {"dispute_id": None, "amount": None, "due_date": None, "card_network": None}
+    if not header_text:
+        return fields
+    for line in header_text.splitlines():
+        line = line.strip()
+        if not line or ":" not in line:
+            continue
+        lower = line.lower()
+        if lower.startswith("dispute id:"):
+            fields["dispute_id"] = line.split(":", 1)[1].strip()
+        elif lower.startswith("transaction amount:"):
+            fields["amount"] = line.split(":", 1)[1].strip()
+        elif lower.startswith("evidence due:"):
+            fields["due_date"] = line.split(":", 1)[1].strip()
+        elif lower.startswith("card network:"):
+            fields["card_network"] = line.split(":", 1)[1].strip()
+    return fields
+
+
+def _parse_metric_cards(cards_text: Optional[str]) -> dict:
+    result = {
+        "classification": None,
+        "winnability": None,
+        "dispute_rate_status": None,
+        "confidence": None,
+    }
+    if not cards_text:
+        return result
+    for line in cards_text.splitlines():
+        line = line.strip()
+        if ":" not in line:
+            continue
+        key, _, value = line.partition(":")
+        key = key.strip().lower().replace(" ", "_")
+        value = value.strip()
+        if key in result and value:
+            result[key] = value
+    return result
+
+
+def _parse_evidence_items(evidence_text: Optional[str]) -> Optional[list]:
+    if not evidence_text:
+        return None
+    boundaries = [(m.start(), m.group(1)) for m in re.finditer(r"(?m)^\s*(\d+)\.\s", evidence_text)]
+    if not boundaries:
+        return None
+    items = []
+    for i, (start, number) in enumerate(boundaries):
+        end = boundaries[i + 1][0] if i + 1 < len(boundaries) else len(evidence_text)
+        block = evidence_text[start:end].strip()
+        block = re.sub(r"^\d+\.\s+", "", block, count=1)
+        description_lines: list[str] = []
+        source: Optional[str] = None
+        weight: Optional[str] = None
+        for line in block.splitlines():
+            stripped = line.strip()
+            if not stripped:
+                continue
+            lower = stripped.lower()
+            if lower.startswith("source:"):
+                source = stripped[7:].strip() or None
+            elif lower.startswith("weight:"):
+                weight = stripped[7:].strip() or None
+            else:
+                # Defensive: unrecognized lines become description continuation
+                description_lines.append(stripped)
+        description = " ".join(description_lines).strip()
+        if description:
+            items.append(
+                {"number": number, "description": description, "source": source, "weight": weight}
+            )
+    return items or None
+
+
+def parse_report_xml(xml_string: str) -> dict:
+    """Parse synthesis prompt XML into a structured dict for the report template.
+    Uses ElementTree with regex fallback for malformed or prose-contaminated XML."""
+    text = xml_string.strip()
+
+    # Strip markdown fences that Claude sometimes adds around XML output
+    for prefix in ("```xml\n", "```xml", "```\n", "```"):
+        if text.startswith(prefix):
+            text = text[len(prefix) :].strip()
+            break
+    if text.endswith("```"):
+        text = text[:-3].strip()
+
+    # Isolate the <report> block if there is surrounding prose or a LOW_CONFIDENCE comment
+    report_start = text.find("<report>")
+    report_end = text.rfind("</report>")
+    if report_start != -1 and report_end != -1:
+        text = text[report_start : report_end + len("</report>")]
+
+    # Try ElementTree first; fall back to per-tag regex on parse failure.
+    # Regex fallback handles unescaped HTML characters that appear in analysis prose.
+    root = None
+    try:
+        root = ET.fromstring(text)
+    except ET.ParseError:
+        pass
+
+    def _get(tag: str) -> Optional[str]:
+        if root is not None:
+            el = root.find(tag)
+            if el is not None:
+                content = "".join(el.itertext()).strip()
+                return content if content else None
+        m = re.search(rf"<{tag}>(.*?)</{tag}>", text, re.DOTALL)
+        return m.group(1).strip() if m else None
+
+    header_text = _get("dispute_header")
+    verdict_text = _get("verdict")
+    reason_code_text = _get("reason_code_translation")
+    evidence_text = _get("evidence_to_submit")
+
+    if verdict_text is None:
+        verdict_action = "unknown"
+    else:
+        _upper = verdict_text.strip().upper()
+        if _upper.startswith("CHALLENGE"):
+            verdict_action = "Challenge"
+        elif _upper.startswith("ACCEPT"):
+            verdict_action = "Accept"
+        else:
+            verdict_action = "unknown"
+
+    reason_code_misapplication = "does not match" in (reason_code_text or "").lower()
+
+    return {
+        "dispute_header": header_text,
+        "header_fields": _parse_header_fields(header_text),
+        "verdict": verdict_text,
+        "verdict_action": verdict_action,
+        "metric_cards": _parse_metric_cards(_get("metric_cards")),
+        "reason_code_translation": reason_code_text,
+        "reason_code_misapplication": reason_code_misapplication,
+        "analysis": _get("analysis"),
+        "evidence_to_submit": _parse_evidence_items(evidence_text),
+        "acceptance_rationale": _get("acceptance_rationale"),
+        "data_sources_used": _get("data_sources_used"),
+    }
 
 
 @app.get("/", response_class=HTMLResponse)
@@ -92,8 +238,12 @@ async def analyze(
             {"error": True, "error_message": str(exc)},
         )
 
+    report = parse_report_xml(result["report_xml"])
+    report["low_confidence_flag"] = result["low_confidence_flag"]
+    report["loop_count"] = result["loop_count"]
+
     return templates.TemplateResponse(
         request,
         "report.html",
-        {"error": False, "dispute_id": dispute_id.strip(), "result": result},
+        {"error": False, "report": report},
     )
