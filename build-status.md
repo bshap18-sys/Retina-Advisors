@@ -3,8 +3,9 @@
 Update this file at the end of every session. A new chat session
 reads this first to know exactly where the project stands.
 
-Last updated: April 28, 2026
+Last updated: April 28, 2026 (end of session - Phase 6A complete)
 Current phase: Phase 6 - Input Form and Frontend
+Next session: Start Phase 6B - assembler.py
 
 ---
 
@@ -181,7 +182,8 @@ Stack decisions locked April 28, 2026:
 
 ### Phase 6A - Scaffolding
 Status: COMPLETE
-Commit: (this session)
+Commits: initial scaffold + bfb1e20 (Starlette fix)
+Completed: April 28, 2026
 
 Tasks:
 - [x] Install dependencies: fastapi, uvicorn, jinja2, stripe,
@@ -214,7 +216,7 @@ Starlette 1.0 breaking change discovered and fixed: TemplateResponse
 signature changed from (name, context_dict) to (request, name,
 context_dict). request is now the first positional arg, never
 embedded in the context dict. Every TemplateResponse call in Phase
-6C and 6D must use the new signature.
+6C and 6D must use this signature. Fixed in commit bfb1e20.
 
 ---
 
@@ -596,6 +598,8 @@ Key commands:
   Activate venv: .venv\Scripts\activate
   Run tests: pytest
   Start dev server: uvicorn src.retina.web:app --reload
+  Dev server terminal: open plain cmd.exe, activate venv manually,
+    run uvicorn there - keep separate from Claude Code terminal
   Integration tests: set ANTHROPIC_API_KEY=... in separate terminal
     .venv\Scripts\python.exe -m pytest tests/test_analyzer.py -k
     "scenario_1" -v -s
@@ -613,6 +617,15 @@ Secrets:
 ---
 
 ## Key Decisions Made
+
+April 28, 2026 - Phase 6A:
+- Starlette 1.0 TemplateResponse signature change discovered:
+  old API was (name, context_dict), new API is (request, name,
+  context_dict). request is first positional arg, never in context
+  dict. Fixed in web.py commit bfb1e20.
+- Dev server runs in a separate plain cmd.exe terminal, not inside
+  Claude Code. Open cmd.exe directly (not via claude-env.bat),
+  activate venv with .venv\Scripts\activate, run uvicorn there.
 
 April 28, 2026 - Phase 6 planning:
 - FastAPI + Jinja2 + Tailwind CSS CDN + HTMX CDN selected
@@ -670,14 +683,21 @@ Non-blocking notes carried forward:
   Run: npm i -g @anthropic-ai/claude-code to fix when convenient.
 - GitHub CLI (gh) not installed. Repo creation was done manually.
   Install via winget install --id GitHub.cli if needed later.
+- radar_rule in assembler.py uses _safe_attr(outcome, "rule", "id") but
+  Stripe v8 returns outcome.rule as a plain string ID when the rule object
+  is not expanded - the .id traversal returns None. Fix: add
+  "charge.outcome.rule" to the expand list in assemble_dispute_input().
+  Flagged in Phase 6B. Fix in Phase 6E.
 - No xml fence branch in _call_claude (low priority)
 - dispute_input["_routing"] mutation is documented design choice
 - INTRANSIT naming slightly inconsistent with hyphenated convention
 - Starlette 1.0 TemplateResponse API change: signature is now
   (request, name, context_dict) - request is the first positional
   arg, never in the context dict. All TemplateResponse calls in
-  Phase 6C and 6D must use this signature or the template name
-  will be received as a dict and blow up in Jinja2's path splitter.
+  Phase 6C and 6D must use this signature. Fixed in bfb1e20.
+- scripts\claude-env.bat launches Claude Code automatically as its
+  last step - do not use it for plain terminal sessions. Open
+  cmd.exe directly and activate venv manually instead.
 
 ---
 
