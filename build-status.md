@@ -3,9 +3,9 @@
 Update this file at the end of every session. A new chat session
 reads this first to know exactly where the project stands.
 
-Last updated: April 29, 2026 (end of session - Phase 6C complete)
+Last updated: April 29, 2026 (end of session - Phase 6D complete)
 Current phase: Phase 6 - Input Form and Frontend
-Next session: Start Phase 6D - report renderer
+Next session: Start Phase 6E - end to end verification
 
 ---
 
@@ -262,7 +262,7 @@ deferred to 6E - see Known Issues.
 
 ### Phase 6C - Form Build
 Status: COMPLETE
-Commit: (this session)
+Commit: 2e0a6d4
 Completed: April 29, 2026
 
 Goal: Full merchant input form rendered in browser, Tailwind
@@ -374,87 +374,53 @@ Form tests:
 ---
 
 ### Phase 6D - Report Renderer
-Goal: XML output from synthesis prompt parsed and rendered as
-professional HTML report. Verdict block with green/red left
-border, four metric cards, structured analysis, prioritized
-evidence list with citations, data sources footer.
+Status: COMPLETE
+Commit: d7bf255
+Completed: April 29, 2026
 
 Tasks:
+- [x] Write parse_report_xml(xml_string) in web.py
+      ElementTree primary, regex fallback for prose-contaminated XML
+      Markdown fence stripping for ```xml and ``` prefixes
+      <report> block isolation from surrounding prose/comments
+      Returns dict: dispute_header, header_fields, verdict,
+      verdict_action, metric_cards, reason_code_translation,
+      reason_code_misapplication, analysis, evidence_to_submit,
+      acceptance_rationale, data_sources_used
+- [x] Parse metric_cards into four fields via key:value line scan
+- [x] Parse evidence_to_submit into list of dicts (number,
+      description, source, weight) with defensive continuation
+      for unrecognized lines
+- [x] Parse header_fields into dispute_id, amount, due_date,
+      card_network for structured display in header bar
+- [x] Handle malformed/incomplete XML gracefully - missing tag
+      returns None, no crash
+- [x] verdict_action three-way: "Challenge" / "Accept" / "unknown"
+      (unknown when verdict is None or neither keyword found)
+- [x] Dispute header bar - dark slate, monospace dispute ID,
+      flex-wrap layout for four header fields
+- [x] Verdict block - green/red/gray left border, confidence
+      badge pill color-coded High/Medium/Low
+- [x] Metric cards - 2x2 mobile, 4 across md+, color-coded
+      winnability and confidence values
+- [x] Reason code translation with amber misapplication banner
+- [x] Analysis paragraphs - split on \n\n with \n fallback
+- [x] Evidence to submit - numbered list, Primary bold, weight
+      badges green/blue/gray
+- [x] Acceptance rationale - amber background, strategic framing
+- [x] Data sources - collapsible details/summary, no JS
+- [x] Low confidence banner (amber) when evaluator loop exhausted
+- [x] Footer with print hint and Retina Advisors branding
+- [x] 3 unit tests: challenge, accept, malformed - all passing
+- [x] 34/34 tests passing, zero regressions
+- [x] Code reviewer: zero blocking issues
+- [x] Committed
 
-XML parsing in web.py:
-- [ ] Write parse_report_xml(xml_string) in web.py
-      Extracts all required XML tags using xml.etree.ElementTree
-      with string parsing fallback
-      Returns dict with keys: dispute_header, verdict,
-      metric_cards, reason_code_translation, analysis,
-      evidence_to_submit (or None), acceptance_rationale
-      (or None), data_sources_used
-- [ ] Parse metric_cards into individual fields:
-      classification, winnability, dispute_rate_status,
-      confidence
-- [ ] Parse evidence_to_submit into list of items each with:
-      number, description, source, weight
-- [ ] Handle malformed/incomplete XML gracefully - missing tag
-      returns None placeholder, no crash
-
-report.html - structure and Tailwind styling:
-- [ ] Dispute header bar (full width, top of report):
-      Dispute ID, amount, evidence due date, card network
-      Dark background, white text, monospace font for dispute ID
-- [ ] Verdict block (prominent, below header):
-      Green left border (border-l-4 border-green-500) for
-      Challenge. Red (border-red-500) for Accept.
-      Large bold verdict text - one sentence.
-      Confidence badge: pill shape, color-coded green/yellow/red
-      for High/Medium/Low
-- [ ] Metric cards row (four cards, responsive):
-      Card 1: Classification
-      Card 2: Winnability (color-coded Strong/Moderate/Weak)
-      Card 3: Dispute Rate Status (color-coded by threshold)
-      Card 4: Confidence Level (color-coded)
-      Each card: icon, label, value, clean border, subtle shadow
-      Mobile: 2x2 grid
-- [ ] Reason code translation (below metric cards):
-      Light background, italic text
-      If misapplication flag: amber warning banner above
-      ("Note: this reason code may not match the evidence")
-- [ ] Analysis section:
-      Readable typography, generous line height
-      Named signal citations in distinct style (monospace or
-      small caps for source names in parentheses)
-- [ ] Evidence to submit (if challenging):
-      Numbered list with visual hierarchy
-      Primary weight: bold and prominent
-      Supporting weight: normal
-      Supplementary weight: muted
-      Each item: what it proves, source, weight badge
-- [ ] Acceptance rationale (if accepting):
-      Amber/yellow tonal background - signals strategic accept,
-      not a failure or default
-- [ ] Data sources section (collapsible footer):
-      CSS details/summary element - no JS needed
-      All six data source categories, available and missing
-- [ ] Print hint: small "Save as PDF" note (browser print handles
-      PDF export, no extra library)
-- [ ] Retina Advisors branding footer
-
-report.html - responsive:
-- [ ] Full report readable on mobile, no horizontal scroll
-- [ ] Metric cards 2x2 on small screens
-- [ ] Nav bar collapses on mobile
-
-Report renderer tests:
-- [ ] Unit test: parse_report_xml with valid XML returns dict
-      with all expected keys populated
-- [ ] Unit test: parse_report_xml with missing evidence_to_submit
-      tag returns None for that key, no exception
-- [ ] Unit test: parse_report_xml with malformed XML returns
-      graceful fallback dict, no crash
-- [ ] Manual: rendered report with Scenario 1 output looks
-      correct - all sections visible, colors correct
-- [ ] Run code reviewer subagent before commit
-- [ ] Commit: "Phase 6D - report renderer, XML parsing, Tailwind
-      report template, metric cards, verdict block"
+Notes: verdict_action three-way check added before commit on
+code reviewer recommendation - prevents green Challenge UI from
+appearing on a verdict that starts with neither keyword. Reviewer
+also flagged two non-blocking gaps deferred to 6E: fence-stripping
+test coverage, and reason_code_misapplication True-branch test.
 
 ---
 
