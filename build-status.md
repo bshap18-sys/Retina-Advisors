@@ -3,9 +3,9 @@
 Update this file at the end of every session. A new chat session
 reads this first to know exactly where the project stands.
 
-Last updated: April 29, 2026 (end of session - Phase 6D complete)
-Current phase: Phase 6 - Input Form and Frontend
-Next session: Start Phase 6E - end to end verification
+Last updated: April 29, 2026 (end of session - Phase 6E complete)
+Current phase: Phase 6 complete - moving to Phase 7
+Next session: Start Phase 7 - Eval Run and Launch Prep
 
 ---
 
@@ -425,37 +425,50 @@ test coverage, and reason_code_misapplication True-branch test.
 ---
 
 ### Phase 6E - End to End
-Goal: Full dispute analysis flow working from browser to browser.
-Real dispute ID, real Stripe data, real pipeline, real report.
-Fix whatever breaks.
+Status: COMPLETE
+Commit: 1238b66
+Completed: April 29, 2026
 
 Tasks:
-- [ ] Full end-to-end test with sandbox dispute ID:
-      1. Start uvicorn dev server
-      2. Open localhost:8000
-      3. Enter sandbox dispute ID
-      4. Fill in representative form fields
-      5. Submit form
-      6. Verify HTMX loading state appears immediately
-      7. Verify report renders after pipeline completes
-      8. Verify all report sections populated correctly
-      9. Verify no console errors, no 500s in uvicorn logs
-- [ ] Edge case tests:
-      - Submit with only dispute ID, all optional fields empty
-      - Submit with invalid dispute ID - clean error message
-      - Upload a PDF - verify pre-processing runs and findings
-        appear in data_sources_used
-      - Upload an image - same verification
-- [ ] Fix any XML parsing issues from real pipeline output
-- [ ] Fix any assembler field mapping issues discovered
-- [ ] Fix any Tailwind styling issues from real report content
-- [ ] Run pytest - confirm all 15+ existing tests still passing,
-      zero regressions
-- [ ] Run code reviewer subagent
-- [ ] Run architecture validator subagent - all eight patterns
-      confirmed present after Phase 6 additions
-- [ ] Commit: "Phase 6E - end to end verified, full analysis
-      flow working browser to browser"
+- [x] Full end-to-end test with sandbox dispute ID
+      (du_1TRZTZ0BuWfcB30elCv2VEn5) - 200 OK, full report rendered
+- [x] Minimal input test - dispute ID only, all optional fields empty
+- [x] Invalid dispute ID - clean inline error, no 500, no page reload
+- [x] PDF upload - pre-processing ran, findings in data_sources_used
+- [x] Image upload - same verification passed
+- [x] Four bugs fixed discovered during E2E testing (see Notes)
+- [x] Run pytest - 43 passing, zero regressions
+- [x] Code reviewer subagent - zero blocking issues
+- [x] Architecture validator - all eight patterns confirmed present
+- [x] Committed
+
+Notes: Four bugs found and fixed during E2E testing:
+1. Dispute ID and Evidence Due showing "Not provided" in header bar -
+   dispute_id and evidence_due_by were not passed into synthesis_input
+   in analyzer.py. Fixed by adding both fields to the synthesis dict
+   and updating SYNTHESIS_PROMPT input_format with usage instructions.
+2. Confidence metric card showing full sentence instead of single word -
+   model output "Low - multiple critical evidence gaps..." and the
+   colon split captured everything. Fixed _parse_metric_cards in web.py
+   to truncate at " - " for confidence and winnability only. classification
+   and dispute_rate_status untouched (legitimate dashes in those values).
+3. Paragraph headers appearing literally in analysis output - model was
+   writing "Paragraph 1 - Classification reasoning" as prose. Added voice
+   rule to SYNTHESIS_PROMPT: no paragraph labels or structural markers.
+4. Em dashes throughout report output - added voice rule to
+   SYNTHESIS_PROMPT: never use em dashes, single dashes only.
+
+Also fixed in this phase (known issues from 6B):
+- radar_rule returning None: added "charge.outcome.rule" to Stripe
+  expand list in assembler.py so outcome.rule returns full object.
+- Legacy stripe.error.* dotted-attribute pattern: replaced with
+  stripe.InvalidRequestError / stripe.StripeError in assembler.py
+  (4 occurrences) and test_assembler.py (1 occurrence).
+
+Architecture validator advisory: scenarios 2-25 in the eval dataset
+do not yet have test functions in test_analyzer.py. Only scenarios 1
+and 26 are wired as integration tests. Full 26-scenario eval run
+is Phase 7 scope.
 
 ---
 
