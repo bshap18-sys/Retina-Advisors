@@ -331,7 +331,7 @@ async def test_days_to_dispute_calculated_correctly():
 @pytest.mark.asyncio
 async def test_invalid_dispute_id_raises_value_error():
     """A dispute ID not found in Stripe must raise ValueError with a clear message."""
-    exc = stripe.error.InvalidRequestError("No such dispute: dp_x", "id")
+    exc = stripe.InvalidRequestError("No such dispute: dp_x", "id")
     with patch("stripe.Dispute.retrieve", side_effect=exc):
         with pytest.raises(ValueError, match="not found"):
             await assemble_dispute_input("dp_doesnotexist", {}, [])

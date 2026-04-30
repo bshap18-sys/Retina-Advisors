@@ -273,6 +273,8 @@ async def synthesize(
     is always available if synthesis produces malformed XML.
     """
     synthesis_input = {
+        "dispute_id": dispute_input.get("dispute_id"),
+        "evidence_due_by": dispute_input.get("evidence_due_by"),
         "delivery_analysis": evidence.get("delivery_analysis", {}),
         "behavior_analysis": evidence.get("behavior_analysis", {}),
         "transaction_risk": evidence.get("transaction_risk", {}),

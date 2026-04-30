@@ -51,6 +51,11 @@ def _parse_metric_cards(cards_text: Optional[str]) -> dict:
         key, _, value = line.partition(":")
         key = key.strip().lower().replace(" ", "_")
         value = value.strip()
+        # Truncate at " - " only for single-word fields where the model may
+        # append qualifiers (e.g. "Low - multiple evidence gaps" -> "Low").
+        # classification and dispute_rate_status contain legitimate dashes.
+        if key in ("confidence", "winnability"):
+            value = value.split(" - ")[0].strip()
         if key in result and value:
             result[key] = value
     return result

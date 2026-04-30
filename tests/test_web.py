@@ -200,3 +200,121 @@ def test_parse_malformed_xml_does_not_raise():
     # Missing tags return None without raising
     assert result["data_sources_used"] is None
     assert result["evidence_to_submit"] is None
+
+
+FENCED_XML = """```xml
+<report>
+
+  <dispute_header>
+    Dispute ID: dp_fenced_001
+    Transaction amount: $100.00
+    Evidence due: 2026-06-01
+    Card network: Visa
+  </dispute_header>
+
+  <verdict>
+    Challenge this dispute - Medium confidence. This is friendly fraud, not true unauthorized use.
+  </verdict>
+
+  <metric_cards>
+    classification: Friendly fraud
+    winnability: Moderate
+    dispute_rate_status: Healthy - below 0.5%
+    confidence: Medium
+  </metric_cards>
+
+  <reason_code_translation>
+    The cardholder told their bank they did not recognize this charge.
+  </reason_code_translation>
+
+  <analysis>
+    Evidence is consistent with friendly fraud (behavior_analysis).
+  </analysis>
+
+  <evidence_to_submit>
+    1. Card fingerprint matches a prior purchase.
+    Source: Stripe customer history
+    Weight: Primary
+  </evidence_to_submit>
+
+  <data_sources_used>
+    - Delivery analysis: no tracking provided
+    - Behavior analysis: consistent pattern
+    - Transaction risk analysis: low Radar score
+    - Reason code analysis: coherent
+    - Merchant context: healthy
+    - Uploaded documents: none
+    - Not available: purchase IP
+  </data_sources_used>
+
+</report>
+```"""
+
+MISAPPLICATION_XML = """
+<report>
+
+  <dispute_header>
+    Dispute ID: dp_test_misapply
+    Transaction amount: $80.00
+    Evidence due: 2026-06-01
+    Card network: Visa
+  </dispute_header>
+
+  <verdict>
+    Challenge this dispute - Medium confidence. This is friendly fraud, not true unauthorized use.
+  </verdict>
+
+  <metric_cards>
+    classification: Friendly fraud
+    winnability: Moderate
+    dispute_rate_status: Healthy - below 0.5%
+    confidence: Medium
+  </metric_cards>
+
+  <reason_code_translation>
+    The cardholder told their bank they did not authorize this charge. Note: this reason code
+    does not match the available evidence - see analysis below.
+  </reason_code_translation>
+
+  <analysis>
+    Evidence points to friendly fraud. The reason code was filed under no-authorization but
+    the behavioral signals indicate the cardholder made this purchase (behavior_analysis).
+  </analysis>
+
+  <evidence_to_submit>
+    1. Prior purchase on the same card fingerprint within 120 days.
+    Source: Stripe customer history
+    Weight: Primary
+  </evidence_to_submit>
+
+  <data_sources_used>
+    - Delivery analysis: confirmed delivery
+    - Behavior analysis: consistent pattern, calculated timeline
+    - Transaction risk analysis: low Radar score
+    - Reason code analysis: misapplied - coherence mismatch flagged
+    - Merchant context: healthy
+    - Uploaded documents: none
+    - Not available: purchase IP
+  </data_sources_used>
+
+</report>
+"""
+
+
+def test_parse_fenced_xml_strips_fences():
+    result = parse_report_xml(FENCED_XML)
+
+    assert result["verdict_action"] == "Challenge"
+    assert result["header_fields"]["dispute_id"] == "dp_fenced_001"
+    assert result["header_fields"]["amount"] == "$100.00"
+    assert result["metric_cards"]["confidence"] == "Medium"
+    assert result["metric_cards"]["winnability"] == "Moderate"
+    assert result["reason_code_misapplication"] is False
+
+
+def test_parse_reason_code_misapplication_flag():
+    result = parse_report_xml(MISAPPLICATION_XML)
+
+    assert result["reason_code_misapplication"] is True
+    assert result["verdict_action"] == "Challenge"
+    assert result["header_fields"]["dispute_id"] == "dp_test_misapply"

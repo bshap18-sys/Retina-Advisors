@@ -567,6 +567,9 @@ the raw data independently - synthesize from these scored outputs.
 
 Input structure:
 {
+  "dispute_id": "string - the Stripe dispute ID, use exactly as-is in dispute_header",
+  "evidence_due_by": number or null - Unix timestamp of the evidence deadline,
+    convert to a human-readable date (e.g. "May 15, 2026") for dispute_header,
   "delivery_analysis": { ...JSON from parallel prompt 1... },
   "behavior_analysis": { ...JSON from parallel prompt 2... },
   "transaction_risk": { ...JSON from parallel prompt 3... },
@@ -797,6 +800,9 @@ trigger a revision loop.
     - Name every signal with its source in parentheses
     - Never use "potentially" without a specific qualifier
     - Never write more than three sentences without a named signal
+    - Do not include paragraph labels, headers, or structural markers.
+      Write continuous prose only.
+    - Never use em dashes - single dashes only
   </analysis>
 
   <evidence_to_submit>

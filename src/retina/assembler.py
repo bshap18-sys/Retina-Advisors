@@ -223,11 +223,11 @@ async def assemble_dispute_input(
         dispute = await asyncio.to_thread(
             stripe.Dispute.retrieve,
             dispute_id,
-            expand=["charge", "charge.customer", "charge.refunds"],
+            expand=["charge", "charge.customer", "charge.refunds", "charge.outcome.rule"],
         )
-    except stripe.error.InvalidRequestError as exc:
+    except stripe.InvalidRequestError as exc:
         raise ValueError(f"Dispute {dispute_id} not found: {exc}") from exc
-    except stripe.error.StripeError as exc:
+    except stripe.StripeError as exc:
         raise ValueError(f"Stripe error retrieving dispute {dispute_id}: {exc}") from exc
 
     # Layer 1 fields from the dispute object
@@ -425,7 +425,7 @@ async def assemble_dispute_input(
                 charge_id or "",
                 charge_created_timestamp or 0,
             )
-        except stripe.error.StripeError as exc:
+        except stripe.StripeError as exc:
             logger.warning(
                 "Failed to retrieve customer history for %s (dispute %s): %s",
                 customer_id,
@@ -451,7 +451,7 @@ async def assemble_dispute_input(
                 charge_id or "",
                 charge_created_timestamp or 0,
             )
-        except stripe.error.StripeError as exc:
+        except stripe.StripeError as exc:
             logger.warning("Failed fingerprint fallback for dispute %s: %s", dispute_id, exc)
     else:
         logger.warning(
