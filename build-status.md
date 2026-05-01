@@ -3,9 +3,23 @@
 Update this file at the end of every session. A new chat session
 reads this first to know exactly where the project stands.
 
-Last updated: May 1, 2026 (prompt tuning session - pre-Phase 7)
+Last updated: May 1, 2026 (UI polish session - pre-Phase 7)
 Current phase: Phase 6 complete - moving to Phase 7
 Next session: Start Phase 7 - Eval Run and Launch Prep
+
+UI polish completed before Phase 7 (May 1, 2026):
+- Full template rewrite: base.html, form.html, report.html
+- White card layout throughout report - dark verdict strip only
+  (slate-900 for Challenge, slate-600 for Accept), white body
+- Metric cards use 7px colored dot indicators instead of labels
+- Analysis section split into four labeled sub-sections
+  (Classification, Evidence assessment, Merchant situation,
+  Recommendation) using Jinja2 namespace counter pattern
+- Form reorganized into 8 section cards with slate-50 header strips
+- Indigo submit button (#4f46e5), dashed file drop zone
+- Nav condensed to 48px fixed height (h-12 flex items-center),
+  text-[14px]/[13px]/[10px] size scale, accent dot removed
+- 43/43 tests passing, browser verified
 
 Prompt tuning completed before Phase 7 (May 1, 2026):
 - Analysis paragraph length capped at 4 sentences per paragraph

@@ -1,9 +1,11 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="bg-white rounded-lg shadow p-8">
-    <h1 class="text-2xl font-bold text-slate-800 mb-1">Analyze a Dispute</h1>
-    <p class="text-slate-500 mb-8">Enter the dispute details below. Fields marked * are required.</p>
+<div>
+    <div class="mb-6">
+        <h1 class="text-[20px] font-semibold text-[#0f172a] mb-1">Analyze a Dispute</h1>
+        <p class="text-[13px] text-slate-500">Enter the dispute details below. The Dispute ID is required.</p>
+    </div>
 
     <form
         hx-post="/analyze"
@@ -11,14 +13,16 @@
         hx-swap="innerHTML"
         hx-indicator="#loading-indicator"
         enctype="multipart/form-data"
-        class="space-y-8"
+        class="space-y-4"
     >
 
-        <!-- Section 1: Dispute ID -->
-        <div>
-            <h2 class="text-sm font-semibold text-slate-700 uppercase tracking-wide mb-3">Dispute</h2>
-            <div>
-                <label for="dispute_id" class="block text-sm font-medium text-slate-700 mb-1">
+        <!-- Dispute -->
+        <div class="bg-white border border-[#e2e8f0] rounded-[8px] overflow-hidden">
+            <div class="bg-slate-50 border-b border-[#e2e8f0] px-4 py-[10px]">
+                <span class="text-[11px] uppercase font-medium text-[#0f172a]">Dispute</span>
+            </div>
+            <div class="p-4">
+                <label for="dispute_id" class="block text-[12px] font-medium text-[#475569] mb-1.5">
                     Dispute ID <span class="text-red-500">*</span>
                 </label>
                 <input
@@ -27,123 +31,133 @@
                     name="dispute_id"
                     placeholder="dp_..."
                     required
-                    class="w-full border border-slate-300 rounded-md px-3 py-2 text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-500"
+                    class="w-full border border-[#e2e8f0] rounded-[6px] px-3 py-[10px] text-[13px] font-mono text-[#1e293b] placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                 />
-                <p class="text-slate-400 text-xs mt-1">Found in your Stripe Dashboard under Disputes.</p>
+                <p class="text-[11px] text-[#94a3b8] mt-1.5">Found in your Stripe Dashboard under Disputes.</p>
             </div>
         </div>
 
-        <!-- Section 2: Order Details -->
-        <div>
-            <h2 class="text-sm font-semibold text-slate-700 uppercase tracking-wide mb-3">Order Details</h2>
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                    <label for="product_type" class="block text-sm font-medium text-slate-700 mb-1">Product Type</label>
-                    <select
-                        id="product_type"
-                        name="product_type"
-                        class="w-full border border-slate-300 rounded-md px-3 py-2 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-500"
-                    >
-                        <option value="">-- Select type --</option>
-                        <option value="physical_goods">Physical Goods</option>
-                        <option value="digital_download">Digital Download</option>
-                        <option value="subscription">Subscription</option>
-                        <option value="service">Service</option>
-                    </select>
-                </div>
-                <div>
-                    <label for="confirmation_email_sent" class="block text-sm font-medium text-slate-700 mb-1">Order Confirmation Email Sent?</label>
-                    <select
-                        id="confirmation_email_sent"
-                        name="confirmation_email_sent"
-                        class="w-full border border-slate-300 rounded-md px-3 py-2 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-500"
-                    >
-                        <option value="">-- Select --</option>
-                        <option value="yes">Yes</option>
-                        <option value="no">No</option>
-                        <option value="unknown">Unknown</option>
-                    </select>
-                </div>
+        <!-- Order Details -->
+        <div class="bg-white border border-[#e2e8f0] rounded-[8px] overflow-hidden">
+            <div class="bg-slate-50 border-b border-[#e2e8f0] px-4 py-[10px]">
+                <span class="text-[11px] uppercase font-medium text-[#0f172a]">Order Details</span>
             </div>
-        </div>
-
-        <!-- Section 3: Fulfillment -->
-        <div>
-            <h2 class="text-sm font-semibold text-slate-700 uppercase tracking-wide mb-3">Fulfillment</h2>
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                    <label for="tracking_number" class="block text-sm font-medium text-slate-700 mb-1">Tracking Number</label>
-                    <input
-                        type="text"
-                        id="tracking_number"
-                        name="tracking_number"
-                        placeholder="1Z999AA1..."
-                        class="w-full border border-slate-300 rounded-md px-3 py-2 text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-500"
-                    />
-                </div>
-                <div>
-                    <label for="carrier" class="block text-sm font-medium text-slate-700 mb-1">Carrier</label>
-                    <select
-                        id="carrier"
-                        name="carrier"
-                        class="w-full border border-slate-300 rounded-md px-3 py-2 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-500"
-                    >
-                        <option value="">-- Select carrier --</option>
-                        <option value="UPS">UPS</option>
-                        <option value="FedEx">FedEx</option>
-                        <option value="USPS">USPS</option>
-                        <option value="DHL">DHL</option>
-                        <option value="OnTrac">OnTrac</option>
-                        <option value="LaserShip">LaserShip</option>
-                        <option value="Other">Other</option>
-                    </select>
-                </div>
-                <div>
-                    <label for="ship_date" class="block text-sm font-medium text-slate-700 mb-1">Ship Date</label>
-                    <input
-                        type="date"
-                        id="ship_date"
-                        name="ship_date"
-                        class="w-full border border-slate-300 rounded-md px-3 py-2 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-500"
-                    />
-                </div>
-                <div>
-                    <label for="delivery_date" class="block text-sm font-medium text-slate-700 mb-1">Delivery Date</label>
-                    <input
-                        type="date"
-                        id="delivery_date"
-                        name="delivery_date"
-                        class="w-full border border-slate-300 rounded-md px-3 py-2 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-500"
-                    />
-                </div>
-                <div class="sm:col-span-2">
-                    <label for="delivery_confirmation_status" class="block text-sm font-medium text-slate-700 mb-1">Delivery Confirmation Status</label>
-                    <select
-                        id="delivery_confirmation_status"
-                        name="delivery_confirmation_status"
-                        class="w-full border border-slate-300 rounded-md px-3 py-2 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-500"
-                    >
-                        <option value="">-- Select status --</option>
-                        <option value="delivered">Delivered</option>
-                        <option value="in_transit">In Transit</option>
-                        <option value="exception">Exception</option>
-                        <option value="unknown">Unknown</option>
-                    </select>
+            <div class="p-4">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                        <label for="product_type" class="block text-[12px] font-medium text-[#475569] mb-1.5">Product Type</label>
+                        <select
+                            id="product_type"
+                            name="product_type"
+                            class="w-full border border-[#e2e8f0] rounded-[6px] px-3 py-[10px] text-[13px] text-[#1e293b] bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                        >
+                            <option value="">-- Select type --</option>
+                            <option value="physical_goods">Physical Goods</option>
+                            <option value="digital_download">Digital Download</option>
+                            <option value="subscription">Subscription</option>
+                            <option value="service">Service</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="confirmation_email_sent" class="block text-[12px] font-medium text-[#475569] mb-1.5">Order Confirmation Email Sent?</label>
+                        <select
+                            id="confirmation_email_sent"
+                            name="confirmation_email_sent"
+                            class="w-full border border-[#e2e8f0] rounded-[6px] px-3 py-[10px] text-[13px] text-[#1e293b] bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                        >
+                            <option value="">-- Select --</option>
+                            <option value="yes">Yes</option>
+                            <option value="no">No</option>
+                            <option value="unknown">Unknown</option>
+                        </select>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <!-- Section 4: Address Match -->
-        <div>
-            <h2 class="text-sm font-semibold text-slate-700 uppercase tracking-wide mb-3">Address</h2>
-            <div>
-                <label for="billing_address_matched_shipping" class="block text-sm font-medium text-slate-700 mb-1">
+        <!-- Fulfillment -->
+        <div class="bg-white border border-[#e2e8f0] rounded-[8px] overflow-hidden">
+            <div class="bg-slate-50 border-b border-[#e2e8f0] px-4 py-[10px]">
+                <span class="text-[11px] uppercase font-medium text-[#0f172a]">Fulfillment</span>
+            </div>
+            <div class="p-4">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                        <label for="tracking_number" class="block text-[12px] font-medium text-[#475569] mb-1.5">Tracking Number</label>
+                        <input
+                            type="text"
+                            id="tracking_number"
+                            name="tracking_number"
+                            placeholder="1Z999AA1..."
+                            class="w-full border border-[#e2e8f0] rounded-[6px] px-3 py-[10px] text-[13px] text-[#1e293b] placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                        />
+                    </div>
+                    <div>
+                        <label for="carrier" class="block text-[12px] font-medium text-[#475569] mb-1.5">Carrier</label>
+                        <select
+                            id="carrier"
+                            name="carrier"
+                            class="w-full border border-[#e2e8f0] rounded-[6px] px-3 py-[10px] text-[13px] text-[#1e293b] bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                        >
+                            <option value="">-- Select carrier --</option>
+                            <option value="UPS">UPS</option>
+                            <option value="FedEx">FedEx</option>
+                            <option value="USPS">USPS</option>
+                            <option value="DHL">DHL</option>
+                            <option value="OnTrac">OnTrac</option>
+                            <option value="LaserShip">LaserShip</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="ship_date" class="block text-[12px] font-medium text-[#475569] mb-1.5">Ship Date</label>
+                        <input
+                            type="date"
+                            id="ship_date"
+                            name="ship_date"
+                            class="w-full border border-[#e2e8f0] rounded-[6px] px-3 py-[10px] text-[13px] text-[#1e293b] focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                        />
+                    </div>
+                    <div>
+                        <label for="delivery_date" class="block text-[12px] font-medium text-[#475569] mb-1.5">Delivery Date</label>
+                        <input
+                            type="date"
+                            id="delivery_date"
+                            name="delivery_date"
+                            class="w-full border border-[#e2e8f0] rounded-[6px] px-3 py-[10px] text-[13px] text-[#1e293b] focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                        />
+                    </div>
+                    <div class="sm:col-span-2">
+                        <label for="delivery_confirmation_status" class="block text-[12px] font-medium text-[#475569] mb-1.5">Delivery Confirmation Status</label>
+                        <select
+                            id="delivery_confirmation_status"
+                            name="delivery_confirmation_status"
+                            class="w-full border border-[#e2e8f0] rounded-[6px] px-3 py-[10px] text-[13px] text-[#1e293b] bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                        >
+                            <option value="">-- Select status --</option>
+                            <option value="delivered">Delivered</option>
+                            <option value="in_transit">In Transit</option>
+                            <option value="exception">Exception</option>
+                            <option value="unknown">Unknown</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Address -->
+        <div class="bg-white border border-[#e2e8f0] rounded-[8px] overflow-hidden">
+            <div class="bg-slate-50 border-b border-[#e2e8f0] px-4 py-[10px]">
+                <span class="text-[11px] uppercase font-medium text-[#0f172a]">Address</span>
+            </div>
+            <div class="p-4">
+                <label for="billing_address_matched_shipping" class="block text-[12px] font-medium text-[#475569] mb-1.5">
                     Did billing address match shipping address?
                 </label>
                 <select
                     id="billing_address_matched_shipping"
                     name="billing_address_matched_shipping"
-                    class="w-full border border-slate-300 rounded-md px-3 py-2 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-500"
+                    class="w-full border border-[#e2e8f0] rounded-[6px] px-3 py-[10px] text-[13px] text-[#1e293b] bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
                 >
                     <option value="">-- Select --</option>
                     <option value="yes">Yes</option>
@@ -153,157 +167,179 @@
             </div>
         </div>
 
-        <!-- Section 5: Customer Contact -->
-        <div>
-            <h2 class="text-sm font-semibold text-slate-700 uppercase tracking-wide mb-3">Customer Contact</h2>
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                    <label for="customer_contacted_merchant_before_dispute" class="block text-sm font-medium text-slate-700 mb-1">
-                        Did customer contact you before disputing?
-                    </label>
-                    <select
-                        id="customer_contacted_merchant_before_dispute"
-                        name="customer_contacted_merchant_before_dispute"
-                        class="w-full border border-slate-300 rounded-md px-3 py-2 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-500"
-                    >
-                        <option value="unknown">Unknown</option>
-                        <option value="yes">Yes</option>
-                        <option value="no">No</option>
-                    </select>
-                </div>
-                <div>
-                    <label for="merchant_contacted_customer_before_dispute" class="block text-sm font-medium text-slate-700 mb-1">
-                        Did you contact the customer before this dispute?
-                    </label>
-                    <select
-                        id="merchant_contacted_customer_before_dispute"
-                        name="merchant_contacted_customer_before_dispute"
-                        class="w-full border border-slate-300 rounded-md px-3 py-2 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-500"
-                    >
-                        <option value="unknown">Unknown</option>
-                        <option value="yes">Yes</option>
-                        <option value="no">No</option>
-                    </select>
-                </div>
-                <div class="sm:col-span-2">
-                    <label for="contact_notes" class="block text-sm font-medium text-slate-700 mb-1">Contact Notes</label>
-                    <textarea
-                        id="contact_notes"
-                        name="contact_notes"
-                        rows="3"
-                        placeholder="Summarize any contact with the customer - dates, channel, what was said..."
-                        class="w-full border border-slate-300 rounded-md px-3 py-2 text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-500 resize-none"
-                    ></textarea>
+        <!-- Customer Contact -->
+        <div class="bg-white border border-[#e2e8f0] rounded-[8px] overflow-hidden">
+            <div class="bg-slate-50 border-b border-[#e2e8f0] px-4 py-[10px]">
+                <span class="text-[11px] uppercase font-medium text-[#0f172a]">Customer Contact</span>
+            </div>
+            <div class="p-4">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                        <label for="customer_contacted_merchant_before_dispute" class="block text-[12px] font-medium text-[#475569] mb-1.5">
+                            Did customer contact you before disputing?
+                        </label>
+                        <select
+                            id="customer_contacted_merchant_before_dispute"
+                            name="customer_contacted_merchant_before_dispute"
+                            class="w-full border border-[#e2e8f0] rounded-[6px] px-3 py-[10px] text-[13px] text-[#1e293b] bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                        >
+                            <option value="unknown">Unknown</option>
+                            <option value="yes">Yes</option>
+                            <option value="no">No</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="merchant_contacted_customer_before_dispute" class="block text-[12px] font-medium text-[#475569] mb-1.5">
+                            Did you contact the customer before this dispute?
+                        </label>
+                        <select
+                            id="merchant_contacted_customer_before_dispute"
+                            name="merchant_contacted_customer_before_dispute"
+                            class="w-full border border-[#e2e8f0] rounded-[6px] px-3 py-[10px] text-[13px] text-[#1e293b] bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                        >
+                            <option value="unknown">Unknown</option>
+                            <option value="yes">Yes</option>
+                            <option value="no">No</option>
+                        </select>
+                    </div>
+                    <div class="sm:col-span-2">
+                        <label for="contact_notes" class="block text-[12px] font-medium text-[#475569] mb-1.5">Contact Notes</label>
+                        <textarea
+                            id="contact_notes"
+                            name="contact_notes"
+                            rows="3"
+                            placeholder="Summarize any contact with the customer - dates, channel, what was said..."
+                            class="w-full border border-[#e2e8f0] rounded-[6px] px-3 py-[10px] text-[13px] text-[#1e293b] placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-none"
+                        ></textarea>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <!-- Section 6: Merchant Context -->
-        <div>
-            <h2 class="text-sm font-semibold text-slate-700 uppercase tracking-wide mb-3">Merchant Context</h2>
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                    <label for="dispute_rate" class="block text-sm font-medium text-slate-700 mb-1">Dispute Rate (%)</label>
-                    <input
-                        type="text"
-                        id="dispute_rate"
-                        name="dispute_rate"
-                        placeholder="0.45"
-                        class="w-full border border-slate-300 rounded-md px-3 py-2 text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-500"
-                    />
-                    <p class="text-slate-400 text-xs mt-1">Your current dispute rate as a percentage.</p>
-                </div>
-                <div>
-                    <label for="billing_descriptor" class="block text-sm font-medium text-slate-700 mb-1">Billing Descriptor</label>
-                    <input
-                        type="text"
-                        id="billing_descriptor"
-                        name="billing_descriptor"
-                        placeholder="ACME STORE"
-                        class="w-full border border-slate-300 rounded-md px-3 py-2 text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-500"
-                    />
-                </div>
-                <div>
-                    <label for="mcc" class="block text-sm font-medium text-slate-700 mb-1">MCC (Merchant Category Code)</label>
-                    <input
-                        type="text"
-                        id="mcc"
-                        name="mcc"
-                        placeholder="5999"
-                        class="w-full border border-slate-300 rounded-md px-3 py-2 text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-500"
-                    />
-                </div>
-                <div>
-                    <label for="risk_posture" class="block text-sm font-medium text-slate-700 mb-1">Risk Posture</label>
-                    <select
-                        id="risk_posture"
-                        name="risk_posture"
-                        class="w-full border border-slate-300 rounded-md px-3 py-2 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-500"
-                    >
-                        <option value="unknown">Unknown</option>
-                        <option value="triage">Triage - dispute rate above threshold, fighting every winnable case</option>
-                        <option value="healthy">Healthy - dispute rate in normal range</option>
-                        <option value="proactive">Proactive - low dispute rate, focused on evidence quality</option>
-                    </select>
-                </div>
-                <div>
-                    <label for="refund_policy_exists" class="block text-sm font-medium text-slate-700 mb-1">Refund Policy Exists?</label>
-                    <select
-                        id="refund_policy_exists"
-                        name="refund_policy_exists"
-                        class="w-full border border-slate-300 rounded-md px-3 py-2 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-500"
-                    >
-                        <option value="">-- Select --</option>
-                        <option value="yes">Yes</option>
-                        <option value="no">No</option>
-                        <option value="unknown">Unknown</option>
-                    </select>
-                </div>
-                <div>
-                    <label for="policy_shown_at_checkout" class="block text-sm font-medium text-slate-700 mb-1">Policy Shown at Checkout?</label>
-                    <select
-                        id="policy_shown_at_checkout"
-                        name="policy_shown_at_checkout"
-                        class="w-full border border-slate-300 rounded-md px-3 py-2 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-500"
-                    >
-                        <option value="">-- Select --</option>
-                        <option value="yes">Yes</option>
-                        <option value="no">No</option>
-                        <option value="unknown">Unknown</option>
-                    </select>
+        <!-- Merchant Context -->
+        <div class="bg-white border border-[#e2e8f0] rounded-[8px] overflow-hidden">
+            <div class="bg-slate-50 border-b border-[#e2e8f0] px-4 py-[10px]">
+                <span class="text-[11px] uppercase font-medium text-[#0f172a]">Merchant Context</span>
+            </div>
+            <div class="p-4">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                        <label for="dispute_rate" class="block text-[12px] font-medium text-[#475569] mb-1.5">Dispute Rate (%)</label>
+                        <input
+                            type="text"
+                            id="dispute_rate"
+                            name="dispute_rate"
+                            placeholder="0.45"
+                            class="w-full border border-[#e2e8f0] rounded-[6px] px-3 py-[10px] text-[13px] text-[#1e293b] placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                        />
+                        <p class="text-[11px] text-[#94a3b8] mt-1.5">Your current dispute rate as a percentage.</p>
+                    </div>
+                    <div>
+                        <label for="billing_descriptor" class="block text-[12px] font-medium text-[#475569] mb-1.5">Billing Descriptor</label>
+                        <input
+                            type="text"
+                            id="billing_descriptor"
+                            name="billing_descriptor"
+                            placeholder="ACME STORE"
+                            class="w-full border border-[#e2e8f0] rounded-[6px] px-3 py-[10px] text-[13px] text-[#1e293b] placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                        />
+                    </div>
+                    <div>
+                        <label for="mcc" class="block text-[12px] font-medium text-[#475569] mb-1.5">MCC (Merchant Category Code)</label>
+                        <input
+                            type="text"
+                            id="mcc"
+                            name="mcc"
+                            placeholder="5999"
+                            class="w-full border border-[#e2e8f0] rounded-[6px] px-3 py-[10px] text-[13px] text-[#1e293b] placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                        />
+                    </div>
+                    <div>
+                        <label for="risk_posture" class="block text-[12px] font-medium text-[#475569] mb-1.5">Risk Posture</label>
+                        <select
+                            id="risk_posture"
+                            name="risk_posture"
+                            class="w-full border border-[#e2e8f0] rounded-[6px] px-3 py-[10px] text-[13px] text-[#1e293b] bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                        >
+                            <option value="unknown">Unknown</option>
+                            <option value="triage">Triage - dispute rate above threshold, fighting every winnable case</option>
+                            <option value="healthy">Healthy - dispute rate in normal range</option>
+                            <option value="proactive">Proactive - low dispute rate, focused on evidence quality</option>
+                        </select>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <!-- Section 7: Supporting Documents -->
-        <div>
-            <h2 class="text-sm font-semibold text-slate-700 uppercase tracking-wide mb-3">Supporting Documents</h2>
-            <div>
-                <label for="files" class="block text-sm font-medium text-slate-700 mb-1">
-                    Upload files (PDF, PNG, JPG - optional)
+        <!-- Policy -->
+        <div class="bg-white border border-[#e2e8f0] rounded-[8px] overflow-hidden">
+            <div class="bg-slate-50 border-b border-[#e2e8f0] px-4 py-[10px]">
+                <span class="text-[11px] uppercase font-medium text-[#0f172a]">Policy</span>
+            </div>
+            <div class="p-4">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                        <label for="refund_policy_exists" class="block text-[12px] font-medium text-[#475569] mb-1.5">Refund Policy Exists?</label>
+                        <select
+                            id="refund_policy_exists"
+                            name="refund_policy_exists"
+                            class="w-full border border-[#e2e8f0] rounded-[6px] px-3 py-[10px] text-[13px] text-[#1e293b] bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                        >
+                            <option value="">-- Select --</option>
+                            <option value="yes">Yes</option>
+                            <option value="no">No</option>
+                            <option value="unknown">Unknown</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="policy_shown_at_checkout" class="block text-[12px] font-medium text-[#475569] mb-1.5">Policy Shown at Checkout?</label>
+                        <select
+                            id="policy_shown_at_checkout"
+                            name="policy_shown_at_checkout"
+                            class="w-full border border-[#e2e8f0] rounded-[6px] px-3 py-[10px] text-[13px] text-[#1e293b] bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                        >
+                            <option value="">-- Select --</option>
+                            <option value="yes">Yes</option>
+                            <option value="no">No</option>
+                            <option value="unknown">Unknown</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Upload Evidence -->
+        <div class="bg-white border border-[#e2e8f0] rounded-[8px] overflow-hidden">
+            <div class="bg-slate-50 border-b border-[#e2e8f0] px-4 py-[10px]">
+                <span class="text-[11px] uppercase font-medium text-[#0f172a]">Upload Evidence</span>
+            </div>
+            <div class="p-4">
+                <label for="files" class="block cursor-pointer border border-dashed border-[#cbd5e1] rounded-[6px] p-6 text-center hover:bg-slate-50 transition-colors">
+                    <p class="text-[13px] text-[#475569]">Drop files here or click to upload</p>
+                    <p class="text-[11px] text-[#94a3b8] mt-1">PDF, PNG, JPG accepted</p>
+                    <input
+                        type="file"
+                        id="files"
+                        name="files"
+                        multiple
+                        accept=".pdf,.png,.jpg,.jpeg"
+                        class="hidden"
+                    />
                 </label>
-                <input
-                    type="file"
-                    id="files"
-                    name="files"
-                    multiple
-                    accept=".pdf,.png,.jpg,.jpeg"
-                    class="w-full text-sm text-slate-600 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-medium file:bg-slate-100 file:text-slate-700 hover:file:bg-slate-200"
-                />
-                <p class="text-slate-400 text-xs mt-1">Tracking confirmations, order receipts, customer correspondence.</p>
             </div>
         </div>
 
         <!-- Submit -->
-        <div class="flex items-center gap-4 pt-2">
+        <div class="space-y-3">
             <button
                 type="submit"
-                class="bg-slate-900 text-white px-6 py-2 rounded-md text-sm font-medium hover:bg-slate-700 transition-colors"
+                class="w-full bg-[#4f46e5] text-white text-[14px] font-medium py-[13px] rounded-[8px] hover:bg-indigo-700 active:bg-indigo-800 transition-colors"
             >
                 Analyze Dispute
             </button>
-            <div id="loading-indicator" class="htmx-indicator text-sm text-slate-500">
-                Analyzing... this may take 30-60 seconds.
+            <div id="loading-indicator" class="htmx-indicator flex items-center gap-3 bg-slate-900 border border-slate-700 rounded-sm px-4 py-3">
+                <div class="shrink-0 w-4 h-4 rounded-full border-2 border-slate-600 border-t-indigo-400 animate-spin"></div>
+                <span id="loading-message" class="text-sm font-mono font-medium text-slate-300">Interrogating Stripe data...</span>
             </div>
         </div>
 

@@ -1,107 +1,105 @@
 {% if error %}
-<div class="bg-red-50 border border-red-200 rounded-lg p-4 mt-6">
-  <p class="text-red-700 font-medium">{{ error_message }}</p>
-  <p class="text-slate-500 text-sm mt-1">Check the dispute ID and try again.</p>
+<div class="bg-red-50 border border-red-200 rounded-[8px] p-4 mt-6">
+  <p class="text-[13px] text-red-700 font-medium">{{ error_message }}</p>
+  <p class="text-[13px] text-slate-500 mt-1">Check the dispute ID and try again.</p>
 </div>
 {% else %}
-<div class="mt-6 space-y-5">
+<div class="mt-6 space-y-4">
 
-  {# Low confidence banner - shown when evaluator loop exhausted without approval #}
+  {# Low confidence banner #}
   {% if report.low_confidence_flag %}
-  <div class="bg-amber-50 border border-amber-300 rounded-lg p-3">
-    <p class="text-amber-800 text-sm font-medium">
+  <div class="bg-amber-50 border border-amber-200 rounded-[8px] p-3">
+    <p class="text-amber-800 text-[12px] font-medium">
       Manual review recommended - this report could not be fully validated after 3 evaluator iterations.
     </p>
   </div>
   {% endif %}
 
   {# Dispute header bar #}
-  <div class="bg-slate-800 rounded-lg p-5">
+  <div class="bg-slate-800 rounded-[8px] p-5">
     <div class="flex flex-wrap gap-x-8 gap-y-3">
       <div>
-        <div class="text-slate-400 text-xs uppercase tracking-wide mb-1">Dispute ID</div>
-        <div class="font-mono text-white text-sm">{{ report.header_fields.dispute_id or 'Unknown' }}</div>
+        <div class="text-[10px] uppercase text-slate-400 tracking-[0.06em] mb-1">Dispute ID</div>
+        <div class="font-mono text-white text-[13px]">{{ report.header_fields.dispute_id or 'Unknown' }}</div>
       </div>
       <div>
-        <div class="text-slate-400 text-xs uppercase tracking-wide mb-1">Amount</div>
-        <div class="text-white font-semibold text-lg">{{ report.header_fields.amount or '-' }}</div>
+        <div class="text-[10px] uppercase text-slate-400 tracking-[0.06em] mb-1">Amount</div>
+        <div class="text-white font-semibold text-[18px]">{{ report.header_fields.amount or '-' }}</div>
       </div>
       <div>
-        <div class="text-slate-400 text-xs uppercase tracking-wide mb-1">Evidence Due</div>
-        <div class="text-white text-sm">{{ report.header_fields.due_date or 'Unknown' }}</div>
+        <div class="text-[10px] uppercase text-slate-400 tracking-[0.06em] mb-1">Evidence Due</div>
+        <div class="text-white text-[13px]">{{ report.header_fields.due_date or 'Unknown' }}</div>
       </div>
       <div>
-        <div class="text-slate-400 text-xs uppercase tracking-wide mb-1">Network</div>
-        <div class="text-white text-sm">{{ report.header_fields.card_network or 'Unknown' }}</div>
+        <div class="text-[10px] uppercase text-slate-400 tracking-[0.06em] mb-1">Network</div>
+        <div class="text-white text-[13px]">{{ report.header_fields.card_network or 'Unknown' }}</div>
       </div>
     </div>
   </div>
 
-  {# Verdict block - green border for Challenge, red for Accept, gray for unknown #}
+  {# Verdict block - colored strip + white body #}
   {% if report.verdict %}
   {% set is_challenge = report.verdict_action == 'Challenge' %}
-  {% set is_accept = report.verdict_action == 'Accept' %}
-  <div class="border-l-4 rounded-r-lg p-5 flex items-start justify-between gap-4
-    {% if is_challenge %}border-green-500 bg-green-50
-    {% elif is_accept %}border-red-500 bg-red-50
-    {% else %}border-slate-400 bg-slate-50{% endif %}">
-    <p class="text-base font-semibold leading-relaxed
-      {% if is_challenge %}text-green-900
-      {% elif is_accept %}text-red-900
-      {% else %}text-slate-800{% endif %}">
-      {{ report.verdict }}
-    </p>
-    {% if report.metric_cards.confidence %}
-    <span class="shrink-0 mt-0.5 inline-block px-3 py-1 rounded-full text-xs font-semibold
-      {% if report.metric_cards.confidence == 'High' %}bg-green-100 text-green-800
-      {% elif report.metric_cards.confidence == 'Medium' %}bg-yellow-100 text-yellow-800
-      {% else %}bg-red-100 text-red-800{% endif %}">
-      {{ report.metric_cards.confidence }} Confidence
-    </span>
-    {% endif %}
+  <div class="rounded-[8px] overflow-hidden border border-[#e2e8f0]">
+    <div class="px-5 py-[10px] flex items-center justify-between
+      {% if is_challenge %}bg-slate-900{% else %}bg-slate-600{% endif %}">
+      <span class="text-white text-[11px] uppercase tracking-wide font-medium">
+        {% if is_challenge %}Challenge{% elif report.verdict_action == 'Accept' %}Accept{% else %}Review Required{% endif %}
+      </span>
+      {% if report.metric_cards.confidence %}
+      <span class="text-white/65 text-[11px]">{{ report.metric_cards.confidence }} Confidence</span>
+      {% endif %}
+    </div>
+    <div class="py-[18px] px-5 bg-white">
+      <p class="text-[15px] font-medium text-[#0f172a] leading-snug">{{ report.verdict }}</p>
+    </div>
   </div>
   {% endif %}
 
-  {# Metric cards - 2 col on mobile, 4 col on md+ #}
+  {# Metric cards - 2 col mobile, 4 col md+ #}
   <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
 
-    <div class="bg-white border border-slate-200 rounded-lg p-4 shadow-sm">
-      <div class="text-xs text-slate-500 font-medium uppercase tracking-wide mb-2">Classification</div>
-      <div class="text-sm font-semibold text-slate-800 leading-snug">
-        {{ report.metric_cards.classification or 'Unknown' }}
+    <div class="bg-white border border-[#e2e8f0] rounded-[8px] p-4">
+      <div class="text-[10px] uppercase text-slate-400 tracking-[0.06em] mb-3">Classification</div>
+      <div class="flex items-center gap-2">
+        <span class="w-[7px] h-[7px] rounded-full shrink-0 bg-slate-400"></span>
+        <span class="text-[13px] font-medium text-[#0f172a] leading-snug">{{ report.metric_cards.classification or 'Unknown' }}</span>
       </div>
     </div>
 
-    <div class="bg-white border border-slate-200 rounded-lg p-4 shadow-sm">
-      <div class="text-xs text-slate-500 font-medium uppercase tracking-wide mb-2">Winnability</div>
-      <div class="text-sm font-semibold leading-snug
-        {% if report.metric_cards.winnability == 'Strong' %}text-green-600
-        {% elif report.metric_cards.winnability == 'Moderate' %}text-yellow-600
-        {% elif report.metric_cards.winnability == 'Weak' %}text-red-600
-        {% else %}text-slate-500{% endif %}">
-        {{ report.metric_cards.winnability or 'Unknown' }}
+    <div class="bg-white border border-[#e2e8f0] rounded-[8px] p-4">
+      <div class="text-[10px] uppercase text-slate-400 tracking-[0.06em] mb-3">Winnability</div>
+      <div class="flex items-center gap-2">
+        <span class="w-[7px] h-[7px] rounded-full shrink-0
+          {% if report.metric_cards.winnability == 'Strong' %}bg-green-600
+          {% elif report.metric_cards.winnability == 'Moderate' %}bg-amber-600
+          {% elif report.metric_cards.winnability == 'Weak' %}bg-red-600
+          {% else %}bg-slate-400{% endif %}"></span>
+        <span class="text-[13px] font-medium text-[#0f172a] leading-snug">{{ report.metric_cards.winnability or 'Unknown' }}</span>
       </div>
     </div>
 
-    <div class="bg-white border border-slate-200 rounded-lg p-4 shadow-sm">
-      <div class="text-xs text-slate-500 font-medium uppercase tracking-wide mb-2">Dispute Rate</div>
-      <div class="text-xs font-semibold leading-snug
-        {% if report.metric_cards.dispute_rate_status and 'Healthy' in report.metric_cards.dispute_rate_status %}text-green-600
-        {% elif report.metric_cards.dispute_rate_status and 'Caution' in report.metric_cards.dispute_rate_status %}text-yellow-600
-        {% elif report.metric_cards.dispute_rate_status and 'Triage' in report.metric_cards.dispute_rate_status %}text-red-600
-        {% else %}text-slate-500{% endif %}">
-        {{ report.metric_cards.dispute_rate_status or 'Unknown' }}
+    <div class="bg-white border border-[#e2e8f0] rounded-[8px] p-4">
+      <div class="text-[10px] uppercase text-slate-400 tracking-[0.06em] mb-3">Dispute Rate</div>
+      <div class="flex items-center gap-2">
+        <span class="w-[7px] h-[7px] rounded-full shrink-0
+          {% if report.metric_cards.dispute_rate_status and 'Healthy' in report.metric_cards.dispute_rate_status %}bg-green-600
+          {% elif report.metric_cards.dispute_rate_status and 'Caution' in report.metric_cards.dispute_rate_status %}bg-amber-600
+          {% elif report.metric_cards.dispute_rate_status and 'Triage' in report.metric_cards.dispute_rate_status %}bg-red-600
+          {% else %}bg-slate-400{% endif %}"></span>
+        <span class="text-[13px] font-medium text-[#0f172a] leading-snug">{{ report.metric_cards.dispute_rate_status or 'Unknown' }}</span>
       </div>
     </div>
 
-    <div class="bg-white border border-slate-200 rounded-lg p-4 shadow-sm">
-      <div class="text-xs text-slate-500 font-medium uppercase tracking-wide mb-2">Confidence</div>
-      <div class="text-sm font-semibold leading-snug
-        {% if report.metric_cards.confidence == 'High' %}text-green-600
-        {% elif report.metric_cards.confidence == 'Medium' %}text-yellow-600
-        {% elif report.metric_cards.confidence == 'Low' %}text-red-600
-        {% else %}text-slate-500{% endif %}">
-        {{ report.metric_cards.confidence or 'Unknown' }}
+    <div class="bg-white border border-[#e2e8f0] rounded-[8px] p-4">
+      <div class="text-[10px] uppercase text-slate-400 tracking-[0.06em] mb-3">Confidence</div>
+      <div class="flex items-center gap-2">
+        <span class="w-[7px] h-[7px] rounded-full shrink-0
+          {% if report.metric_cards.confidence == 'High' %}bg-green-600
+          {% elif report.metric_cards.confidence == 'Medium' %}bg-amber-600
+          {% elif report.metric_cards.confidence == 'Low' %}bg-red-600
+          {% else %}bg-slate-400{% endif %}"></span>
+        <span class="text-[13px] font-medium text-[#0f172a]">{{ report.metric_cards.confidence or 'Unknown' }}</span>
       </div>
     </div>
 
@@ -109,54 +107,60 @@
 
   {# Reason code translation #}
   {% if report.reason_code_translation %}
-  <div class="bg-slate-50 border border-slate-200 rounded-lg p-4">
+  <div class="bg-white border border-[#e2e8f0] rounded-[8px] p-5">
     {% if report.reason_code_misapplication %}
-    <div class="mb-3 px-3 py-2 bg-amber-100 border border-amber-300 rounded text-amber-800 text-xs font-medium">
+    <div class="mb-3 px-3 py-2 bg-amber-50 border border-amber-200 rounded text-amber-700 text-[12px]">
       Note: this reason code may not match the evidence - see analysis below.
     </div>
     {% endif %}
-    <div class="text-xs text-slate-500 font-medium uppercase tracking-wide mb-1">Reason Code</div>
-    <p class="text-slate-700 text-sm italic">{{ report.reason_code_translation }}</p>
+    <div class="text-[10px] uppercase text-[#94a3b8] tracking-[0.06em] mb-2">Reason Code</div>
+    <p class="text-[13px] text-[#1e293b] leading-[1.8]">{{ report.reason_code_translation }}</p>
   </div>
   {% endif %}
 
-  {# Analysis - split on double newlines into paragraphs, fall back to single newlines #}
+  {# Analysis - four labeled sub-sections mapped to paragraphs in order #}
   {% if report.analysis %}
-  <div class="bg-white border border-slate-200 rounded-lg p-5 shadow-sm">
-    <h3 class="text-xs text-slate-500 font-medium uppercase tracking-wide mb-4">Analysis</h3>
-    <div class="text-slate-700 text-sm leading-7 space-y-4">
-      {% set paras = report.analysis.split('\n\n') if '\n\n' in report.analysis else report.analysis.split('\n') %}
-      {% for para in paras %}
-      {% if para.strip() %}
-      <p>{{ para.strip() }}</p>
+  <div class="bg-white border border-[#e2e8f0] rounded-[8px] overflow-hidden">
+    {% set sub_labels = ['Classification', 'Evidence assessment', 'Merchant situation', 'Recommendation'] %}
+    {% set ns = namespace(i=0) %}
+    {% set raw_paras = report.analysis.split('\n\n') if '\n\n' in report.analysis else report.analysis.split('\n') %}
+    {% for para in raw_paras %}
+    {% if para.strip() %}
+    {% if ns.i > 0 %}<div class="border-t border-[#f1f5f9]"></div>{% endif %}
+    <div class="px-5 py-4">
+      {% if ns.i < sub_labels|length %}
+      <div class="text-[10px] uppercase text-[#94a3b8] tracking-[0.06em] mb-2">{{ sub_labels[ns.i] }}</div>
       {% endif %}
-      {% endfor %}
+      <p class="text-[13px] text-[#1e293b] leading-[1.8]">{{ para.strip() }}</p>
     </div>
+    {% set ns.i = ns.i + 1 %}
+    {% endif %}
+    {% endfor %}
   </div>
   {% endif %}
 
-  {# Evidence to submit - populated when recommendation is Challenge #}
+  {# Evidence to submit #}
   {% if report.evidence_to_submit %}
-  <div class="bg-white border border-slate-200 rounded-lg p-5 shadow-sm">
-    <h3 class="text-xs text-slate-500 font-medium uppercase tracking-wide mb-4">Evidence to Submit</h3>
+  <div class="bg-white border border-[#e2e8f0] rounded-[8px] p-5">
+    <div class="text-[10px] uppercase text-[#94a3b8] tracking-[0.06em] mb-4">Evidence to Submit</div>
     <ol class="space-y-4">
       {% for item in report.evidence_to_submit %}
       <li class="flex gap-3">
-        <span class="shrink-0 w-6 h-6 rounded-full bg-slate-100 text-slate-600 text-xs font-bold flex items-center justify-center mt-0.5">
+        <span class="shrink-0 w-5 h-5 rounded-full bg-slate-100 text-slate-600 text-[11px] font-bold flex items-center justify-center mt-0.5">
           {{ item.number }}
         </span>
         <div class="flex-1 min-w-0">
-          <p class="text-sm text-slate-800 leading-snug {{ 'font-semibold' if item.weight == 'Primary' else '' }}">
+          <p class="text-[13px] text-[#1e293b] leading-snug {{ 'font-semibold' if item.weight == 'Primary' else '' }}">
             {{ item.description }}
           </p>
           {% if item.source %}
-          <p class="text-xs text-slate-500 mt-1">Source: {{ item.source }}</p>
+          <p class="text-[11px] text-[#94a3b8] mt-1">Source: {{ item.source }}</p>
           {% endif %}
           {% if item.weight %}
-          <span class="inline-block mt-1.5 px-2 py-0.5 rounded text-xs font-medium
-            {% if item.weight == 'Primary' %}bg-green-100 text-green-800
-            {% elif item.weight == 'Supporting' %}bg-blue-100 text-blue-800
-            {% else %}bg-slate-100 text-slate-600{% endif %}">
+          <span class="inline-block mt-1.5 px-2 py-0.5 rounded text-[11px] font-medium
+            {% if item.weight == 'Primary' %}bg-green-50 text-green-700
+            {% elif item.weight == 'Supporting' %}bg-blue-50 text-blue-700
+            {% else %}bg-slate-100 text-slate-500{% endif %}">
             {{ item.weight }}
           </span>
           {% endif %}
@@ -167,11 +171,11 @@
   </div>
   {% endif %}
 
-  {# Acceptance rationale - populated when recommendation is Accept #}
+  {# Acceptance rationale #}
   {% if report.acceptance_rationale %}
-  <div class="bg-amber-50 border border-amber-200 rounded-lg p-5">
-    <h3 class="text-xs text-amber-700 font-medium uppercase tracking-wide mb-3">Why Accepting Is the Right Call</h3>
-    <div class="text-amber-900 text-sm leading-7 space-y-3">
+  <div class="bg-white border border-[#e2e8f0] rounded-[8px] p-5">
+    <div class="text-[10px] uppercase text-[#94a3b8] tracking-[0.06em] mb-3">Why accepting is the right call</div>
+    <div class="text-[13px] text-[#1e293b] leading-[1.8] space-y-3">
       {% set paras = report.acceptance_rationale.split('\n\n') if '\n\n' in report.acceptance_rationale else report.acceptance_rationale.split('\n') %}
       {% for para in paras %}
       {% if para.strip() %}
@@ -182,16 +186,16 @@
   </div>
   {% endif %}
 
-  {# Data sources - collapsible via HTML details, no JS required #}
+  {# Data sources - collapsible #}
   {% if report.data_sources_used %}
-  <details class="bg-white border border-slate-200 rounded-lg">
-    <summary class="px-5 py-3 text-xs text-slate-500 font-medium uppercase tracking-wide cursor-pointer hover:bg-slate-50 rounded-lg select-none">
+  <details class="bg-white border border-[#e2e8f0] rounded-[8px]">
+    <summary class="px-5 py-3 text-[10px] uppercase text-[#94a3b8] tracking-[0.06em] cursor-pointer hover:bg-slate-50 rounded-[8px] select-none">
       Data Sources Used
     </summary>
-    <div class="px-5 py-4 border-t border-slate-200 space-y-1">
+    <div class="px-5 py-4 border-t border-[#e2e8f0] space-y-1">
       {% for line in report.data_sources_used.split('\n') %}
       {% if line.strip() %}
-      <p class="text-xs text-slate-600 leading-6">{{ line.strip() }}</p>
+      <p class="text-[12px] text-slate-600 leading-6">{{ line.strip() }}</p>
       {% endif %}
       {% endfor %}
     </div>
@@ -199,11 +203,11 @@
   {% endif %}
 
   {# Footer #}
-  <div class="text-center py-4 border-t border-slate-100">
-    <p class="text-xs text-slate-400">
+  <div class="text-center py-4 border-t border-[#e2e8f0]">
+    <p class="text-[11px] text-slate-400">
       Save as PDF using your browser's print function (Ctrl+P / Cmd+P, then "Save as PDF")
     </p>
-    <p class="text-xs text-slate-300 mt-1">Retina Advisors - AI-Powered Dispute Analysis</p>
+    <p class="text-[11px] text-slate-300 mt-1">Retina Advisors - AI-Powered Dispute Analysis</p>
   </div>
 
 </div>
