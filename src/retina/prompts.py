@@ -773,7 +773,7 @@ trigger a revision loop.
   </reason_code_translation>
 
   <analysis>
-    Three to five paragraphs following this structure:
+    Three to four paragraphs following this structure:
 
     Paragraph 1 - Classification reasoning: what this dispute is
     and why. Reference specific signals by name and source parallel
@@ -797,12 +797,27 @@ trigger a revision loop.
     Voice rules:
     - Use "this dispute" not "the dispute"
     - Active voice: "the evidence shows" not "it can be seen that"
-    - Name every signal with its source in parentheses
+    - Name every signal with its source in parentheses, using plain
+      English labels only: "delivery analysis", "customer behavior
+      analysis", "transaction risk analysis", "reason code analysis",
+      "merchant context", or "uploaded documents". Never use JSON field
+      names, variable names, or internal identifiers such as
+      "behavior_analysis", "days_to_dispute", or "anomaly_flags" in
+      the analysis prose. The signal value can be stated in plain
+      English but the source label must be human-readable.
     - Never use "potentially" without a specific qualifier
     - Never write more than three sentences without a named signal
     - Do not include paragraph labels, headers, or structural markers.
       Write continuous prose only.
     - Never use em dashes - single dashes only
+    - Maximum 4 sentences per paragraph. Make the point, name the
+      signal, draw the implication, stop. Do not restate signals
+      already named or summarize what the paragraph just said.
+    - Maximum 4 paragraphs total. Write a fifth only when the
+      evidence genuinely supports two competing classifications
+      that cannot be resolved from available data. Descriptor
+      confusion notes and low-confidence hedges do not qualify
+      for a fifth paragraph - fold them into paragraph 1 or 3.
   </analysis>
 
   <evidence_to_submit>
@@ -826,7 +841,8 @@ trigger a revision loop.
 
   <acceptance_rationale>
     Populate only if recommendation is to accept.
-    Two to three sentences. Frame as deliberate strategic decision,
+    Two sentences maximum. Do not restate fee math already covered
+    in the analysis. Frame as deliberate strategic decision,
     not as giving up. State what accepting accomplishes or avoids.
     Never frame acceptance as resignation.
   </acceptance_rationale>
@@ -867,7 +883,9 @@ All required XML tags must be present and populated:
   confidence level, includes classification
 - metric_cards: all four fields present with valid values
 - reason_code_translation: present and one sentence
-- analysis: present, minimum three paragraphs
+- analysis: present, three to four paragraphs; five only when
+  evidence supports two competing classifications that cannot
+  be resolved from available data
 - evidence_to_submit OR acceptance_rationale: exactly one present
 - data_sources_used: present and lists all sources
 Pass: all tags present and populated

@@ -3,9 +3,20 @@
 Update this file at the end of every session. A new chat session
 reads this first to know exactly where the project stands.
 
-Last updated: April 29, 2026 (end of session - Phase 6E complete)
+Last updated: May 1, 2026 (prompt tuning session - pre-Phase 7)
 Current phase: Phase 6 complete - moving to Phase 7
 Next session: Start Phase 7 - Eval Run and Launch Prep
+
+Prompt tuning completed before Phase 7 (May 1, 2026):
+- Analysis paragraph length capped at 4 sentences per paragraph
+- Analysis paragraph count capped at 4 total (fifth only for genuine
+  competing classification with real evidentiary ambiguity)
+- Acceptance rationale capped at 2 sentences, no fee math restatement
+- Citation labels changed to plain English only - no JSON field names
+  or internal identifiers in analysis prose
+- EVALUATOR_PROMPT structure_completeness criterion updated to match
+  new paragraph cap (was "minimum three", now "three to four")
+- 43/43 tests passing, browser verified, code reviewer approved
 
 ---
 
