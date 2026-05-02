@@ -275,6 +275,10 @@ async def synthesize(
     synthesis_input = {
         "dispute_id": dispute_input.get("dispute_id"),
         "evidence_due_by": dispute_input.get("evidence_due_by"),
+        "dispute_amount": dispute_input.get("dispute_amount", 0) / 100,
+        "delivery_to_dispute_days": dispute_input.get("fulfillment_data", {}).get(
+            "delivery_to_dispute_days"
+        ),
         "delivery_analysis": evidence.get("delivery_analysis", {}),
         "behavior_analysis": evidence.get("behavior_analysis", {}),
         "transaction_risk": evidence.get("transaction_risk", {}),

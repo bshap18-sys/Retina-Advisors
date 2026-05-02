@@ -385,7 +385,7 @@ Return exactly this JSON structure:
   "visa_ce3_eligibility": "eligible | not_eligible |
     check_required | not_applicable",
   "visa_ce3_qualifying_transactions": number or null,
-  "misapplication_flag": true | false,
+  "misapplication_flag": true if coherence_assessment is 'misapplied', false otherwise. Do not set independently.,
   "misapplication_note": "string or null",
   "missing_evidence": ["list of missing fields that affected
     assessment or empty array"]
@@ -570,6 +570,11 @@ Input structure:
   "dispute_id": "string - the Stripe dispute ID, use exactly as-is in dispute_header",
   "evidence_due_by": number or null - Unix timestamp of the evidence deadline,
     convert to a human-readable date (e.g. "May 15, 2026") for dispute_header,
+  "dispute_amount": number - transaction amount already converted to dollars.
+    Use this value as-is for Transaction amount in dispute_header and for fee math.
+    Do not multiply or divide it.
+  "delivery_to_dispute_days": number or null - days between confirmed delivery and
+    dispute filing, use when citing delivery timeline.
   "delivery_analysis": { ...JSON from parallel prompt 1... },
   "behavior_analysis": { ...JSON from parallel prompt 2... },
   "transaction_risk": { ...JSON from parallel prompt 3... },
@@ -623,9 +628,22 @@ A mismatch is a finding, not an obstacle.
 </step>
 
 <step id="3" name="route_to_pipeline">
-Apply the recommended_pipeline from reason_code_analysis. If you
-are overriding it based on the full evidence picture, state why
-before proceeding.
+Exception first: if misapplication_flag is true in reason_code_analysis,
+the recommended_pipeline is wrong by definition. Do not follow it.
+When misapplication_flag is true, the actual complaint type determines
+the pipeline - not the behavioral or transaction signals. If uploaded
+documents or contact notes describe a product quality complaint, damage,
+or non-receipt, route to the appropriate non-fraud pipeline regardless
+of how strong the fraud signals appear. Behavioral signals that look
+like friendly fraud are irrelevant when the customer's own stated reason
+contradicts the filed reason code.
+Classify from the full evidence picture and state which pipeline you
+are applying and why. Your analysis section must open with: This
+dispute has a misapplied reason code.
+
+For all other disputes: apply the recommended_pipeline from
+reason_code_analysis. If you are overriding it based on the full
+evidence picture, state why before proceeding.
 
 <pipeline name="fraudulent_friendly_fraud">
 Sub-classify: the cardholder made this purchase and is now
@@ -659,11 +677,18 @@ Load-bearing signals: confirmation email availability from
 merchant context, return policy shown at checkout, customer
 contact record from behavior_analysis.
 Check refund_in_flight_flag first.
+Challenge if: confirmation email available showing product matched description, return policy was shown at checkout, AND merchant attempted resolution before dispute was filed. These three together make a strong case.
+Accept if: no confirmation email available, policy not shown at checkout, OR customer contacted merchant and merchant did not respond. Missing documentation is fatal to this pipeline.
+Winnability is moderate by default - product quality claims are subjective. State this explicitly.
 </pipeline>
 
 <pipeline name="subscription_canceled">
 Load-bearing signals: confirmation email with terms,
 cancellation policy, any usage after alleged cancellation.
+Classification label for this pipeline is always: Subscription misunderstanding. Never classify as Friendly fraud or Ambiguous when routed here - the cardholder may be confused or abusing the process, but the dispute type is subscription misunderstanding regardless.
+Challenge if: confirmation email with cancellation terms available, policy shown at signup, AND prior billing cycles with no disputes suggest the customer understood the subscription.
+Accept if: policy not shown at signup, confirmation email unavailable, merchant did not respond to cancellation inquiry, OR triage dispute rate.
+Winnability is moderate by default - subscription disputes are inherently subjective without usage evidence.
 </pipeline>
 
 <pipeline name="credit_not_processed_refund_in_flight">
@@ -717,16 +742,22 @@ Dispute: winnability moderate or strong AND merchant situation
 supports challenging AND fee math favorable OR strategic
 documentation justifies cost.
 
-Accept: winnability weak AND merchant in triage mode OR fee math
-makes challenging irrational AND no compelling strategic reason
-to fight.
+Accept if ANY of the following is true independently:
+- Winnability is weak with no compelling strategic reason to fight.
+- Fee math makes challenging irrational: dispute amount is less than the $30 dispute fee. State the exact dollar amounts explicitly - $X transaction, fighting and losing costs $30.
+- Merchant is in triage mode: accept regardless of winnability. State explicitly that this is a winnable case being accepted due to dispute rate. Name the downstream consequences of crossing the network threshold.
 
-Confidence levels:
-- High: three or more corroborating signal types, clear pipeline,
-  fee math favorable. Cannot assign on single signal.
-- Medium: two corroborating signal types or some ambiguity.
-- Low: single signal type, mixed evidence, or significant gaps.
-  State what additional evidence would change the level.
+Confidence levels - count distinct signal TYPE categories, not individual signals:
+
+-  Authentication signals: ECI indicator, 3DS result, wallet type
+-  Fulfillment signals: delivery confirmation, address match, shipping address type
+-  Behavioral signals: days to dispute, pre-dispute contact, prior order history, prior disputes
+-  Risk signals: Radar score, AVS result, CVC result
+-  Contextual signals: fee math, merchant dispute rate, product type, reason code alignment
+
+High: three or more distinct signal TYPE categories present and corroborating. Cannot assign on a single category. For friendly fraud classifications, neutral risk signals (low Radar score, AVS match, CVC pass) are corroborating - they are inconsistent with true unauthorized access and support the friendly fraud reading.
+Medium: two corroborating signal type categories, or three categories with meaningful ambiguity in one.
+Low: single signal type category, mixed evidence across categories, or significant data gaps. State what additional evidence would change the level.
 </step>
 </reasoning_process>
 

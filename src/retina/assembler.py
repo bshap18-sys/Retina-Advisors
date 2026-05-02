@@ -14,6 +14,7 @@ import json
 import logging
 import os
 import time
+from datetime import datetime, timezone
 from typing import Any
 
 import stripe
@@ -493,11 +494,25 @@ async def assemble_dispute_input(
     # Layer 5: form inputs assembled into named sub-dicts.
     # Key names confirmed in Phase 6B planning - must match what the
     # delivery and behavior prompts reference in their slices.
+    delivery_date_str = form_data.get("delivery_date")
+    delivery_to_dispute_days = None
+    if delivery_date_str and dispute_filed_timestamp:
+        try:
+            delivery_dt = datetime.strptime(delivery_date_str, "%Y-%m-%d").replace(
+                tzinfo=timezone.utc
+            )
+            delivery_to_dispute_days = (
+                dispute_filed_timestamp - int(delivery_dt.timestamp())
+            ) // 86400
+        except (ValueError, TypeError):
+            pass
+
     fulfillment_data = {
         "tracking_number": form_data.get("tracking_number"),
         "carrier": form_data.get("carrier"),
         "ship_date": form_data.get("ship_date"),
-        "delivery_date": form_data.get("delivery_date"),
+        "delivery_date": delivery_date_str,
+        "delivery_to_dispute_days": delivery_to_dispute_days,
         "delivery_confirmation_status": form_data.get("delivery_confirmation_status"),
         "billing_address_matched_shipping": form_data.get("billing_address_matched_shipping"),
     }
