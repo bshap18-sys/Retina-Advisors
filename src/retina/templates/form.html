@@ -7,6 +7,14 @@
         <p class="text-[13px] text-slate-500">Enter the dispute details below. The Dispute ID is required.</p>
     </div>
 
+    <button
+        type="button"
+        onclick="loadDemoData()"
+        class="w-full mb-4 border border-indigo-300 text-indigo-600 bg-indigo-50 hover:bg-indigo-100 active:bg-indigo-200 rounded-[6px] px-4 py-[10px] text-[13px] font-medium transition-colors"
+    >
+        Try a demo dispute
+    </button>
+
     <form
         hx-post="/analyze"
         hx-target="#result-container"
@@ -348,4 +356,27 @@
 
 <!-- HTMX injects report.html partial here -->
 <div id="result-container"></div>
+
+<script>
+function loadDemoData() {
+    document.getElementById('dispute_id').value = 'du_1TRZTZ0BuWfcB30elCv2VEn5';
+    document.getElementById('product_type').value = 'physical_goods';
+    document.getElementById('confirmation_email_sent').value = 'yes';
+    document.getElementById('tracking_number').value = '1Z999AA10123456784';
+    document.getElementById('carrier').value = 'UPS';
+    document.getElementById('ship_date').value = '2025-03-15';
+    document.getElementById('delivery_date').value = '2025-03-18';
+    document.getElementById('delivery_confirmation_status').value = 'delivered';
+    document.getElementById('billing_address_matched_shipping').value = 'yes';
+    document.getElementById('customer_contacted_merchant_before_dispute').value = 'no';
+    document.getElementById('merchant_contacted_customer_before_dispute').value = 'no';
+    document.getElementById('contact_notes').value = 'No contact from customer prior to dispute. Order fulfilled same day. No returns or complaints on file.';
+    document.getElementById('dispute_rate').value = '0.3';
+    document.getElementById('billing_descriptor').value = 'RETINA APPAREL';
+    document.getElementById('mcc').value = '5691';
+    document.getElementById('risk_posture').value = 'healthy';
+    document.getElementById('refund_policy_exists').value = 'yes';
+    document.getElementById('policy_shown_at_checkout').value = 'yes';
+}
+</script>
 {% endblock %}
