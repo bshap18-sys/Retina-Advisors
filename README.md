@@ -145,6 +145,7 @@ Current status: 8/8 must-pass confirmed. Full 26-scenario run pending final cost
 - Payments: Stripe Python SDK
 - Tests: pytest, 43 passing
 - Deployed: www.retinaadvisors.com
+- Hosting: Railway
 
 ---
 
