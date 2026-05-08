@@ -1,3 +1,31 @@
+# Retina Advisors - Dispute Analyzer
+
+AI-powered dispute analysis for Stripe merchants. Built by a fraud SME with nine years across card fraud, identity fraud, and risk-based detection strategy.
+
+Live at retinaadvisors.com.
+
+---
+
+## Why This Exists
+
+The fraud tooling market has two ends. On one end: enterprise automation platforms built for merchants processing thousands of disputes a month, with full automation, dedicated integrations, and contracts sized for fraud teams with real headcount. On the other end: Stripe's built-in dispute tools, which tell you what evidence to submit but not what you are actually dealing with.
+
+In between sits the small DTC merchant with five disputes a month and no fraud team. They know something went wrong. They do not know if it is true card fraud, a customer who received the package and disputed it anyway, or genuine confusion over an unfamiliar billing descriptor. That distinction drives a completely different response strategy - and none of the existing tools surface it.
+
+The second gap is transparency. Automated dispute tools are black boxes. They submit evidence and report win rates. They do not explain whether a dispute is winnable, why the evidence is or is not strong enough, or whether fighting a particular case makes financial sense given the merchant's chargeback rate and Stripe's fee structure. This tool surfaces that reasoning explicitly. Every recommendation traces to named evidence. Every classification shows its work.
+
+---
+
+## What It Does
+
+Enter a Stripe dispute ID. The tool pulls dispute and transaction data from Stripe automatically, accepts optional merchant context through a form, and returns a structured expert analysis: what the dispute actually is, how winnable it is, whether to challenge or accept, and exactly what evidence to submit if challenging.
+
+The analysis distinguishes true card fraud from friendly fraud, flags refund-in-flight abuse, assesses Visa Compelling Evidence 3.0 eligibility, and factors in the merchant's current dispute rate and Stripe fee exposure before making a recommendation. It reads the behavioral story behind the data, not just the data.
+
+Live demo: retinaadvisors.com
+
+---
+
 ## Architecture
 
 Eight patterns. Each one maps to how a fraud analyst thinks.
