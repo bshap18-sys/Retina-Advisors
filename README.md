@@ -30,6 +30,8 @@ Live demo: retinaadvisors.com
 
 Eight patterns. Each one maps to how a fraud analyst thinks.
 
+![Dispute Analyzer Architecture](architecture-diagram.png)
+
 ### 1. Routing
 
 A dedicated Claude call reads the Stripe dispute category and early signals, then routes to the correct analysis pipeline before any evidence evaluation begins.
