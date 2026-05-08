@@ -5,7 +5,7 @@ reads this first to know exactly where the project stands.
 
 Last updated: May 7, 2026
 Current phase: Phase 7 in progress
-Next session: Phase 7B - README with all eight architecture patterns explained
+Next session: Phase 7D - LinkedIn carousel post
 
 UI polish completed before Phase 7 (May 1, 2026):
 - Full template rewrite: base.html, form.html, report.html
@@ -532,7 +532,7 @@ Tasks:
 - [ ] All 26 eval scenarios run against live tool
 - [ ] Overall score: 23/26 minimum
 - [x] README written with all eight architecture patterns explained
-- [ ] Architecture diagram created and added to repo
+- [x] Architecture diagram created and added to repo
 - [x] GitHub repo confirmed public
 - [x] Live demo accessible at www.retinaadvisors.com
 - [ ] LinkedIn carousel post drafted
