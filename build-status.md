@@ -3,7 +3,7 @@
 Update this file at the end of every session. A new chat session
 reads this first to know exactly where the project stands.
 
-Last updated: May 2, 2026
+Last updated: May 7, 2026
 Current phase: Phase 7 in progress
 Next session: Phase 7B - README with all eight architecture patterns explained
 
@@ -531,14 +531,17 @@ Tasks:
       ACCEPTABLE_VARIANCE_IDS - see eval/UNRESOLVED.md)
 - [ ] All 26 eval scenarios run against live tool
 - [ ] Overall score: 23/26 minimum
-- [ ] README written with all eight architecture patterns explained
+- [x] README written with all eight architecture patterns explained
 - [ ] Architecture diagram created and added to repo
-- [ ] GitHub repo confirmed public
-- [ ] Live demo accessible at retinaadvisors.com
+- [x] GitHub repo confirmed public
+- [x] Live demo accessible at www.retinaadvisors.com
 - [ ] LinkedIn carousel post drafted
 Notes: 7/7 must-pass confirmed LAUNCH GO on May 2 2026. Full
 26-scenario run incomplete due to API cost - see eval/UNRESOLVED.md
 for open items. Phase 7B README is next.
+Deployed to Railway May 7 2026. Domain www.retinaadvisors.com live
+and connected. Demo data button added to form. Root domain redirect
+pending.
 
 ---
 
